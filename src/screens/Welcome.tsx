@@ -32,7 +32,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         
         {!isNostrAvailable && (
           <Alert severity="warning" className="text-left">
-            Please install a NOSTR browser extension (like nos2x) to continue
+            Please install a NOSTR browser extension (like nos2x or Alby) to continue
           </Alert>
         )}
       </Card>

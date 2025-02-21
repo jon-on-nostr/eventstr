@@ -12,7 +12,6 @@ const Home: NextPage = () => {
     logout, 
     isNostrAvailable 
   } = useNostr();
-  console.log("userProfile: ", userProfile)
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -84,7 +83,7 @@ const Home: NextPage = () => {
 
             {!isNostrAvailable && (
               <p className="mt-4 text-sm text-amber-600">
-                Please install a NOSTR browser extension (like nos2x) to continue
+                Please install a NOSTR browser extension (like nos2x or Alby) to continue
               </p>
             )}
           </div>
