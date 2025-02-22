@@ -24,10 +24,23 @@
     ],
     "redirects": [
       {
-        "source": "/.well-known/nostr.json",
-        "destination": "/.well-known/nostr.json",
-        "permanent": true
+        "source": "/:path*",
+        "has": [
+          {
+            "type": "host",
+            "value": "eventstr.com"
+          }
+        ],
+        "permanent": true,
+        "destination": "https://www.eventstr.com/:path*",
+        "missing": [
+          {
+            "type": "pathname",
+            "value": "/.well-known/nostr.json"
+          }
+        ]
       }
     ],
-    "trailingSlash": false
+    "trailingSlash": false,
+    "cleanUrls": true
 }
