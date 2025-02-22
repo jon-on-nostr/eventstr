@@ -1,15 +1,3 @@
 {
-    "redirects": [
-      {
-        "source": "/:path*",
-        "has": [
-          {
-            "type": "host",
-            "value": "eventstr.com"
-          }
-        ],
-        "destination": "https://www.eventstr.com/:path*",
-        "permanent": true
-      }
-    ]
+    "cleanUrls": true
 }
