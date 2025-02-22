@@ -21,5 +21,13 @@
           }
         ]
       }
-    ]
+    ],
+    "redirects": [
+      {
+        "source": "/.well-known/nostr.json",
+        "destination": "/.well-known/nostr.json",
+        "permanent": true
+      }
+    ],
+    "trailingSlash": false
 }
