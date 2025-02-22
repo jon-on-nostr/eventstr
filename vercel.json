@@ -1,27 +1,4 @@
 {
-    "headers": [
-      {
-        "source": "/.well-known/(.*)",
-        "headers": [
-          {
-            "key": "Access-Control-Allow-Origin",
-            "value": "*"
-          },
-          {
-            "key": "Access-Control-Allow-Methods",
-            "value": "GET, OPTIONS"
-          },
-          {
-            "key": "Access-Control-Allow-Headers",
-            "value": "*"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ]
-      }
-    ],
     "redirects": [
       {
         "source": "/:path*",
@@ -31,16 +8,8 @@
             "value": "eventstr.com"
           }
         ],
-        "permanent": true,
         "destination": "https://www.eventstr.com/:path*",
-        "missing": [
-          {
-            "type": "pathname",
-            "value": "/.well-known/nostr.json"
-          }
-        ]
+        "permanent": true
       }
-    ],
-    "trailingSlash": false,
-    "cleanUrls": true
+    ]
 }
