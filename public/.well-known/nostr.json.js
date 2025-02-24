@@ -25,7 +25,7 @@ export default function handler(req, res) {
     // Serve the actual JSON
     res.status(200).json({
       "names": {
-        "yourusername": "cfc3f840b87c8e3ac26dd714a3c71c80a624fee0cced463f33810fb25ff97a96"
+        "jon": "cfc3f840b87c8e3ac26dd714a3c71c80a624fee0cced463f33810fb25ff97a96"
       }
     });
 }
