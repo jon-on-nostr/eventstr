@@ -131,7 +131,7 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'primary.main', fontWeight: 'bold' }}>
-              EVENTSTR
+              eVENTSTR
             </Typography>
           </motion.div>
           
@@ -536,7 +536,7 @@ const HomePage: React.FC = () => {
           <Grid container spacing={4}>
             <Grid item xs={12} sm={6} md={3}>
               <Typography variant="h6" color="primary.main" gutterBottom sx={{ fontWeight: 'bold' }}>
-                Eventstr
+                eventstr
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
                 An educational journey through the decentralized world of Nostr.
