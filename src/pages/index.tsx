@@ -122,7 +122,6 @@ const HomePage: React.FC = () => {
   
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-      {/* Navigation Header - Improved contrast with light purple background */}
       <AppBar position="sticky" elevation={0}>
         <Toolbar>
           <motion.div
@@ -137,7 +136,7 @@ const HomePage: React.FC = () => {
           
           <Box sx={{ flexGrow: 1 }} />
           
-          <Box sx={{ display: 'flex' }}>
+          <Box sx={{ display: {xs: 'none', md: 'flex'} }}>
             {['Resources', 'Learning Paths', 'Community', 'Journal'].map((item, index) => (
               <motion.div
                 key={item}
