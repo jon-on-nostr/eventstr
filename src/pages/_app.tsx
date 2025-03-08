@@ -3,80 +3,105 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
+import Layout from '@/components/layout';
 
-// Custom theme creation based on the recommended brand colors
-const theme = createTheme({
+
+const cypherpunkTheme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#5E35B1', // Deep Purple
+      main: '#00ff00', // Terminal green
     },
     secondary: {
-      main: '#2196F3', // Electric Blue
+      main: '#00ccff', // Cyan
+    },
+    error: {
+      main: '#ff0000', // Red
     },
     warning: {
-      main: '#FFC107', // Yellow-Orange for accent
+      main: '#ffcc00', // Yellow
+    },
+    info: {
+      main: '#00ccff', // Cyan
+    },
+    success: {
+      main: '#00ff00', // Green
     },
     background: {
-      default: '#F8F9FA', // Very Light Gray
-      paper: '#FFFFFF',
+      default: '#000000', // Black
+      paper: '#111111', // Dark Gray
     },
     text: {
-      primary: '#212121', // Dark Gray
-      secondary: '#424242',
+      primary: '#00ff00', // Terminal green
+      secondary: '#00cc00', // Slightly darker green
     },
+    divider: '#00ff00', // Terminal green
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Share Tech Mono", monospace',
     h1: {
-      fontWeight: 700,
+      fontFamily: '"VT323", monospace',
     },
     h2: {
-      fontWeight: 600,
+      fontFamily: '"VT323", monospace',
     },
     h3: {
-      fontWeight: 600,
+      fontFamily: '"Share Tech Mono", monospace',
     },
     h4: {
-      fontWeight: 500,
+      fontFamily: '"VT323", monospace',
     },
-    body1: {
-      lineHeight: 1.7,
+    h5: {
+      fontFamily: '"Share Tech Mono", monospace',
+    },
+    h6: {
+      fontFamily: '"Share Tech Mono", monospace',
     },
     button: {
-      fontWeight: 500,
+      fontFamily: '"Share Tech Mono", monospace',
+      textTransform: 'none',
     },
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          padding: '10px 24px',
-        },
-        containedPrimary: {
-          boxShadow: '0 4px 10px rgba(94, 53, 177, 0.25)',
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+          borderRadius: 0,
+          textTransform: 'none',
+          boxShadow: 'none',
           '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+            boxShadow: 'none',
+          },
+        },
+        outlined: {
+          borderWidth: '1px',
+          '&:hover': {
+            borderWidth: '1px',
           },
         },
       },
     },
-    MuiAppBar: {
+    MuiPaper: {
       styleOverrides: {
         root: {
-          // Improving header contrast by using a light purple background instead of white
-          backgroundColor: '#F5F0FF', // Light purple background
-          borderBottom: '1px solid rgba(94, 53, 177, 0.1)'
+          borderRadius: 0,
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: '#00ff00',
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          '@media (min-width:1200px)': {
+            maxWidth: '1000px',
+          },
         },
       },
     },
@@ -93,12 +118,14 @@ function MyApp({ Component, pageProps, router }: AppProps) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={cypherpunkTheme}>
         {/* CssBaseline normalizes styles across browsers */}
         <CssBaseline />
         {/* AnimatePresence enables animations when components enter/exit the DOM */}
         <AnimatePresence mode="wait" initial={false}>
-          <Component {...pageProps} key={router.route} />
+          {/* <Layout> */}
+            <Component {...pageProps} key={router.route} />
+          {/* </Layout> */}
         </AnimatePresence>
       </ThemeProvider>
     </React.Fragment>

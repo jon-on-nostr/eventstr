@@ -1,579 +1,474 @@
-import React, { useState } from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Button, 
-  Container, 
-  Grid, 
-  Card, 
-  CardContent, 
-  CardActions,
-  TextField,
-  Box,
-  Chip,
-  Paper,
-  IconButton,
-  Divider,
-  useTheme
-} from '@mui/material';
-import { motion } from 'framer-motion';
+import React from 'react';
+import Link from 'next/link';
+import { Box, Container, Typography, Button, Grid, Divider } from '@mui/material';
+import { Code as CodeIcon, ElectricBolt, CurrencyBitcoin } from '@mui/icons-material';
 
-// Icons
-import PersonIcon from '@mui/icons-material/Person';
-import CodeIcon from '@mui/icons-material/Code';
-import SchoolIcon from '@mui/icons-material/School';
-import RssFeedIcon from '@mui/icons-material/RssFeed';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+// Custom Nostr icon component 
+const NostrIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
+    <path d="M8 9H10V15H8V9ZM14 9H16V15H14V9ZM7 12H17V14H7V12Z" />
+  </svg>
+);
 
-// Framer Motion component wrappers
-const MotionContainer = motion(Container);
-const MotionGrid = motion(Grid);
-const MotionBox = motion(Box);
-const MotionTypography = motion(Typography);
-const MotionCard = motion(Card);
-const MotionPaper = motion(Paper);
-
-// Animation variants for staggered children animations
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { 
-    opacity: 1,
-    transition: { 
-      staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { 
-    y: 0, 
-    opacity: 1,
-    transition: { 
-      type: "spring", 
-      stiffness: 300, 
-      damping: 20 
-    }
-  }
-};
-
-// Sample Nostr public key for display
-const MY_NOSTR_PUBKEY = 'npub1xhdzye3dmy9u0zk5yetaue4r9lzxduvcp4skd50utjjax908p9cqwuxaaq';
-
-// Sample latest articles for the homepage
-const latestArticles = [
-  {
-    title: 'Understanding Nostr Events',
-    snippet: 'Learn how Nostr events form the backbone of the protocol...',
-    date: 'March 2, 2025',
-    tag: 'Foundations'
-  },
-  {
-    title: 'Setting Up Your First Relay',
-    snippet: 'A step-by-step guide to deploying your own Nostr relay...',
-    date: 'February 27, 2025',
-    tag: 'Development'
-  },
-  {
-    title: 'My Journey with NIPs',
-    snippet: 'Personal reflections on implementing various Nostr Improvement Proposals...',
-    date: 'February 20, 2025',
-    tag: 'Learning Journal'
-  }
-];
-
-// Learning paths for the "Choose Your Path" section
-const learningPaths = [
-  {
-    title: 'For Beginners',
-    description: 'Start your Nostr journey with fundamental concepts and basic usage.',
-    icon: <PersonIcon sx={{ fontSize: 40 }} />,
-    color: '#5E35B1', // Deep Purple
-    link: '/beginners'
-  },
-  {
-    title: 'For Developers',
-    description: 'Dive into building with Nostr, from basic integrations to custom clients.',
-    icon: <CodeIcon sx={{ fontSize: 40 }} />,
-    color: '#2196F3', // Electric Blue
-    link: '/developers'
-  },
-  {
-    title: 'For Educators',
-    description: 'Learn how to teach Nostr concepts and build community resources.',
-    icon: <SchoolIcon sx={{ fontSize: 40 }} />,
-    color: '#FFC107', // Yellow-Orange
-    link: '/educators'
-  }
-];
-
-const HomePage: React.FC = () => {
-  const theme = useTheme();
-  const [copied, setCopied] = useState(false);
-  
-  const handleCopyPublicKey = () => {
-    navigator.clipboard.writeText(MY_NOSTR_PUBKEY);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  
+const Home = () => {
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-      <AppBar position="sticky" elevation={0}>
-        <Toolbar>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'primary.main', fontWeight: 'bold' }}>
-              eVENTSTR
+    <>
+      {/* Terminal-style Header */}
+      <Box 
+        sx={{ 
+          bgcolor: '#000', 
+          color: '#0f0',
+          borderBottom: '1px solid #0f0',
+          py: 2,
+          fontFamily: '"Share Tech Mono", monospace',
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h5" component="h1" sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
+              EVENTSTR
             </Typography>
-          </motion.div>
-          
-          <Box sx={{ flexGrow: 1 }} />
-          
-          <Box sx={{ display: {xs: 'none', md: 'flex'} }}>
-            {['Resources', 'Learning Paths', 'Community', 'Journal'].map((item, index) => (
-              <motion.div
-                key={item}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
-                whileHover={{ y: -3 }}
+            <Box display="flex" alignItems="flex-end" flexDirection={{xs: "column", md: "row"}}>
+              <Button 
+                color="inherit" 
+                component={Link}
+                href="/why-nostr"
+                sx={{ 
+                  fontFamily: '"Share Tech Mono", monospace',
+                  mr: 2,
+                  '&:hover': {
+                    bgcolor: '#0f03',
+                    textDecoration: 'underline',
+                  }
+                }}
               >
-                <Button color="inherit" sx={{ mx: 1, color: 'text.primary' }}>{item}</Button>
-              </motion.div>
-            ))}
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <Button variant="contained" color="primary" sx={{ ml: 2 }}>
-                Get Started
+                WHY_NOSTR
               </Button>
-            </motion.div>
+              <Button 
+                color="inherit" 
+                component={Link}
+                href="/building-eventstr"
+                sx={{ 
+                  fontFamily: '"Share Tech Mono", monospace',
+                  '&:hover': {
+                    bgcolor: '#0f03',
+                    textDecoration: 'underline',
+                  }
+                }}
+              >
+                BUILDING_EVENTSTR
+              </Button>
+            </Box>
           </Box>
-        </Toolbar>
-      </AppBar>
+        </Container>
+      </Box>
 
       {/* Hero Section */}
-      <MotionBox 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
+      <Box 
         sx={{ 
-          py: 12, 
-          px: 4, 
-          textAlign: 'center',
-          background: 'linear-gradient(135deg, rgba(94,53,177,0.08) 0%, rgba(33,150,243,0.08) 100%)',
-          borderBottom: '1px solid rgba(0,0,0,0.05)'
+          bgcolor: '#000', 
+          color: '#0f0',
+          pt: 8,
+          pb: 10,
+          fontFamily: '"Share Tech Mono", monospace',
         }}
       >
         <Container maxWidth="md">
-          <MotionTypography 
-            variant="h1" 
-            gutterBottom 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' } }}
-          >
-            Own Your Voice with <Box component="span" sx={{ color: 'primary.main' }}>Nostr</Box>
-          </MotionTypography>
-          
-          <MotionTypography 
-            variant="h5" 
-            color="text.secondary" 
-            paragraph 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            sx={{ mb: 4 }}
-          >
-            Join the movement toward digital sovereignty. Start building your Nostr presence today.
-          </MotionTypography>
-          
-          <MotionBox 
-            sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6 }}
-          >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button variant="contained" color="primary" size="large">
-                Start Learning
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button variant="outlined" color="primary" size="large">
-                Join Community
-              </Button>
-            </motion.div>
-          </MotionBox>
-          
-          <MotionPaper 
-            elevation={0} 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.8 }}
-            whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}
-            sx={{ 
-              p: 2, 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              borderRadius: 3,
-              border: '1px solid rgba(0,0,0,0.08)',
-              bgcolor: 'background.paper'
-            }}
-          >
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mr: 1 }}>
-              My Nostr Key:
-            </Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>
-              {MY_NOSTR_PUBKEY.substring(0, 12)}...{MY_NOSTR_PUBKEY.substring(MY_NOSTR_PUBKEY.length - 6)}
-            </Typography>
-            <motion.div
-              whileHover={{ scale: 1.2, rotate: 10 }}
-              whileTap={{ scale: 0.9 }}
+          <Box sx={{ mb: 6, textAlign: 'center' }}>
+            <Typography 
+              variant="h2" 
+              component="h2" 
+              gutterBottom
+              sx={{ 
+                fontFamily: '"VT323", monospace',
+                fontSize: { xs: '2.5rem', md: '4rem' },
+                letterSpacing: '0.1em'
+              }}
             >
-              <IconButton size="small" onClick={handleCopyPublicKey} sx={{ ml: 1 }}>
-                <ContentCopyIcon fontSize="small" color={copied ? "primary" : "inherit"} />
-              </IconButton>
-            </motion.div>
-          </MotionPaper>
-        </Container>
-      </MotionBox>
-
-      {/* Choose Your Path Section */}
-      <MotionContainer 
-        maxWidth="lg" 
-        sx={{ py: 8 }}
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        <MotionTypography 
-          variant="h2" 
-          align="center" 
-          gutterBottom 
-          variants={itemVariants}
-          sx={{ mb: 6 }}
-        >
-          Choose Your Path
-        </MotionTypography>
-        
-        <Grid container spacing={4}>
-          {learningPaths.map((path, index) => (
-            <MotionGrid item xs={12} md={4} key={index} variants={itemVariants}>
-              <MotionCard 
-                sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                whileHover={{ 
-                  y: -10, 
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
-                  transition: { duration: 0.3 }
+              &lt;EVENTSTR/&gt;
+            </Typography>
+            <Typography 
+              variant="h5" 
+              component="p" 
+              gutterBottom
+              sx={{ 
+                fontFamily: '"Share Tech Mono", monospace',
+                color: '#0c0',
+                mb: 4
+              }}
+            >
+              BUILDING THE DECENTRALIZED FUTURE
+            </Typography>
+            <Box sx={{ display: 'inline-block', border: '1px solid #0f0', p: 2, mb: 4 }}>
+              <Typography 
+                variant="body1" 
+                component="p"
+                sx={{ 
+                  fontFamily: '"Share Tech Mono", monospace',
+                  textAlign: 'left',
+                  lineHeight: '1.7'
                 }}
               >
-                <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  pt: 4,
-                  pb: 2
-                }}>
-                  <MotionBox 
-                    sx={{ 
-                      bgcolor: `${path.color}20`, // Using hex opacity
-                      color: path.color,
-                      p: 2,
-                      borderRadius: '50%'
-                    }}
-                    whileHover={{ 
-                      scale: 1.1, 
-                      rotate: 5,
-                      transition: { duration: 0.3, type: "spring" }
-                    }}
-                  >
-                    {path.icon}
-                  </MotionBox>
-                </Box>
-                <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
-                  <Typography gutterBottom variant="h4" component="h3">
-                    {path.title}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    {path.description}
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'center', pb: 3 }}>
-                  <motion.div
-                    whileHover={{ 
-                      scale: 1.05,
-                      x: 5,
-                      transition: { duration: 0.2 }
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button variant="outlined" color="primary" href={path.link} endIcon={<ChevronRightIcon />}>
-                      View Path
-                    </Button>
-                  </motion.div>
-                </CardActions>
-              </MotionCard>
-            </MotionGrid>
-          ))}
-        </Grid>
-      </MotionContainer>
-      
-      {/* Latest Content Section */}
-      <MotionBox 
-        sx={{ bgcolor: 'background.paper', py: 8 }}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-            <MotionTypography 
-              variant="h3" 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              Latest Content
-            </MotionTypography>
-            
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              whileHover={{ x: 5 }}
-            >
-              <Button color="primary" endIcon={<ChevronRightIcon />}>
-                View All
-              </Button>
-            </motion.div>
+                $ ./join_eventstr.sh<br />
+                &gt; Initializing Nostr protocol<br />
+                &gt; Connecting to Bitcoin network<br />
+                &gt; Opening Lightning channels<br />
+                &gt; Welcome to the resistance...<br />
+                <Box component="span" sx={{ animation: 'blink 1s step-end infinite' }}>_</Box>
+              </Typography>
+            </Box>
           </Box>
-          
-          <MotionGrid 
-            container 
-            spacing={4}
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-          >
-            {latestArticles.map((article, index) => (
-              <MotionGrid item xs={12} md={4} key={index} variants={itemVariants}>
-                <MotionCard 
-                  sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                  whileHover={{ 
-                    y: -8, 
-                    boxShadow: '0 15px 30px rgba(0, 0, 0, 0.1)',
-                    transition: { duration: 0.3 }
+
+          <Grid container spacing={4} gap={{xs: 8, md: 0}} justifyContent="center">
+            <Grid item xs={12} md={4} textAlign="center">
+              <Box>
+                <NostrIcon />
+              </Box>
+              <Typography 
+                variant="h6" 
+                component="h3" 
+                gutterBottom
+                sx={{ fontFamily: '"Share Tech Mono", monospace' }}
+              >
+                NOSTR
+              </Typography>
+              <Box 
+                sx={{ 
+                  border: '1px dashed #0f0', 
+                  p: 2,
+                  height: '100%',
+                  '&:hover': {
+                    borderStyle: 'solid',
+                  }
+                }}
+              >
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: '"Share Tech Mono", monospace',
+                    mb: 2
                   }}
                 >
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <motion.div whileHover={{ scale: 1.1 }}>
-                        <Chip
-                          label={article.tag}
-                          size="small"
-                          sx={{ 
-                            bgcolor: 
-                              article.tag === 'Foundations' ? `${theme.palette.primary.main}15` : 
-                              article.tag === 'Development' ? `${theme.palette.secondary.main}15` : 
-                              `${theme.palette.warning.main}15`,
-                            color: 
-                              article.tag === 'Foundations' ? theme.palette.primary.main : 
-                              article.tag === 'Development' ? theme.palette.secondary.main : 
-                              theme.palette.warning.main,
-                          }}
-                        />
-                      </motion.div>
-                      <Typography variant="caption" color="text.secondary">
-                        {article.date}
-                      </Typography>
-                    </Box>
-                    <Typography gutterBottom variant="h5" component="h3">
-                      {article.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {article.snippet}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <motion.div whileHover={{ x: 3 }}>
-                      <Button size="small" color="primary">Read More</Button>
-                    </motion.div>
-                  </CardActions>
-                </MotionCard>
-              </MotionGrid>
-            ))}
-          </MotionGrid>
-        </Container>
-      </MotionBox>
-      
-      {/* Newsletter / Stay Connected Section */}
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <MotionPaper
-          elevation={0}
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.7, type: "spring", stiffness: 100 }}
-          sx={{
-            p: { xs: 4, md: 6 },
-            textAlign: 'center',
-            borderRadius: 4,
-            backgroundColor: 'primary.main',
-            color: 'white',
-            overflow: 'hidden',
-            position: 'relative'
-          }}
-        >
-          {/* Background decoration elements */}
-          <MotionBox
-            sx={{ 
-              position: 'absolute', 
-              width: 300, 
-              height: 300, 
-              borderRadius: '50%', 
-              background: 'rgba(255,255,255,0.05)', 
-              top: -100, 
-              right: -100 
-            }}
-            animate={{ 
-              scale: [1, 1.2, 1], 
-              rotate: [0, 45, 0] 
-            }}
-            transition={{ 
-              duration: 20, 
-              ease: "easeInOut", 
-              repeat: Infinity,
-              repeatType: "reverse" 
-            }}
-          />
-          
-          <MotionBox
-            animate={{ y: [0, 15, 0] }}
-            transition={{ duration: 5, repeat: Infinity }}
-          >
-            <RssFeedIcon sx={{ fontSize: 48, mb: 2, opacity: 0.9 }} />
-          </MotionBox>
-          
-          <MotionTypography 
-            variant="h3" 
-            gutterBottom
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            Stay Connected
-          </MotionTypography>
-          
-          <MotionTypography 
-            variant="h6" 
-            sx={{ mb: 4, opacity: 0.9 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-          >
-            Follow my Nostr journey and get notified when new educational content is published
-          </MotionTypography>
-          
-          <MotionBox 
-            sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, maxWidth: 500, mx: 'auto' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-          >
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Enter your Nostr public key..."
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: 1,
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                }
-              }}
-            />
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button 
-                variant="contained" 
-                color="warning" 
+                  CENSORSHIP-RESISTANT PROTOCOL
+                </Typography>
+                <Divider sx={{ bgcolor: '#0f0', mb: 2 }} />
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: '"Share Tech Mono", monospace'
+                  }}
+                >
+                  Permissionless communication
+                  without central authority
+                </Typography>
+              </Box>
+            </Grid>
+            
+            <Grid item xs={12} md={4} textAlign="center">
+              <Box>
+                <CurrencyBitcoin />
+              </Box>
+              <Typography 
+                variant="h6" 
+                component="h3" 
+                gutterBottom
+                sx={{ fontFamily: '"Share Tech Mono", monospace' }}
+              >
+                BITCOIN
+              </Typography>
+              <Box 
                 sx={{ 
-                  px: 4,
-                  py: { xs: 1.5, sm: 2 },
-                  whiteSpace: 'nowrap'
+                  border: '1px dashed #0f0', 
+                  p: 2,
+                  height: '100%',
+                  '&:hover': {
+                    borderStyle: 'solid',
+                  }
                 }}
               >
-                Follow Updates
-              </Button>
-            </motion.div>
-          </MotionBox>
-        </MotionPaper>
-      </Container>
-      
-      {/* Footer */}
-      <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6, borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="h6" color="primary.main" gutterBottom sx={{ fontWeight: 'bold' }}>
-                eventstr
-              </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
-                An educational journey through the decentralized world of Nostr.
-              </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: '"Share Tech Mono", monospace',
+                    mb: 2
+                  }}
+                >
+                  SOVEREIGN DIGITAL CURRENCY
+                </Typography>
+                <Divider sx={{ bgcolor: '#0f0', mb: 2 }} />
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: '"Share Tech Mono", monospace'
+                  }}
+                >
+                  Trustless monetary system
+                  beyond state control
+                </Typography>
+              </Box>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="h6" gutterBottom>
-                Learning Paths
+            
+            <Grid item xs={12} md={4} textAlign="center">
+              <Box>
+                <ElectricBolt />
+              </Box>
+              <Typography 
+                variant="h6" 
+                component="h3" 
+                gutterBottom
+                sx={{ fontFamily: '"Share Tech Mono", monospace' }}
+              >
+                LIGHTNING
               </Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>For Beginners</Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>For Developers</Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>For Educators</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="h6" gutterBottom>
-                Resources
-              </Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>Nostr Basics</Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>NIPs Explained</Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>Tool Directory</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="h6" gutterBottom>
-                Connect
-              </Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>Nostr: {MY_NOSTR_PUBKEY.substring(0, 8)}...</Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>GitHub</Typography>
-              <Typography component="a" href="#" variant="body2" display="block" sx={{ mb: 1, color: 'text.secondary', textDecoration: 'none' }}>Community Chat</Typography>
+              <Box 
+                sx={{ 
+                  border: '1px dashed #0f0', 
+                  p: 2,
+                  height: '100%',
+                  '&:hover': {
+                    borderStyle: 'solid',
+                  }
+                }}
+              >
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: '"Share Tech Mono", monospace',
+                    mb: 2
+                  }}
+                >
+                  INSTANT MICROPAYMENTS
+                </Typography>
+                <Divider sx={{ bgcolor: '#0f0', mb: 2 }} />
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: '"Share Tech Mono", monospace'
+                  }}
+                >
+                  Scaling solution with
+                  near-zero fees
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
-          <Divider sx={{ my: 4 }} />
-          <Typography variant="body2" color="text.secondary" align="center">
-            © {new Date().getFullYear()} Nostr Learn. Open source educational content.
+
+          <Box textAlign="center" sx={{ mt: 15 }}>
+            <Button 
+              variant="outlined" 
+              size="large"
+              component={Link}
+              href="/building-eventstr"
+              sx={{ 
+                color: '#0f0',
+                borderColor: '#0f0',
+                fontFamily: '"Share Tech Mono", monospace',
+                '&:hover': {
+                  borderColor: '#0f0',
+                  bgcolor: '#0f01',
+                }
+              }}
+            >
+              JOIN_THE_JOURNEY &gt;
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Manifesto Section */}
+      <Box 
+        sx={{ 
+          bgcolor: '#0c0', 
+          color: '#000',
+          py: 6,
+          fontFamily: '"Share Tech Mono", monospace',
+        }}
+      >
+        <Container maxWidth="md">
+          <Typography 
+            variant="h4" 
+            component="h2" 
+            textAlign="center"
+            gutterBottom
+            sx={{ 
+              fontFamily: '"VT323", monospace',
+              mb: 4
+            }}
+          >
+            MANIFESTO
+          </Typography>
+          
+          <Typography 
+            variant="body1" 
+            component="p"
+            sx={{ 
+              fontFamily: '"Share Tech Mono", monospace',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              mb: 4
+            }}
+          >
+            "We are building for a future where communication and exchange are free from centralized control."
+          </Typography>
+          
+          <Box 
+            sx={{ 
+              border: '2px solid #000', 
+              p: 3,
+              bgcolor: '#000',
+              color: '#0f0',
+            }}
+          >
+            <Typography 
+              variant="body1" 
+              component="p"
+              sx={{ 
+                fontFamily: '"Share Tech Mono", monospace',
+                mb: 2
+              }}
+            >
+              &gt; We reject the surveillance economy
+            </Typography>
+            <Typography 
+              variant="body1" 
+              component="p"
+              sx={{ 
+                fontFamily: '"Share Tech Mono", monospace',
+                mb: 2
+              }}
+            >
+              &gt; We embrace sovereign technology
+            </Typography>
+            <Typography 
+              variant="body1" 
+              component="p"
+              sx={{ 
+                fontFamily: '"Share Tech Mono", monospace',
+                mb: 2
+              }}
+            >
+              &gt; We build tools for human freedom
+            </Typography>
+            <Typography 
+              variant="body1" 
+              component="p"
+              sx={{ 
+                fontFamily: '"Share Tech Mono", monospace'
+              }}
+            >
+              &gt; Join us or get left behind
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Call to Action */}
+      <Box 
+        sx={{ 
+          bgcolor: '#000', 
+          color: '#0f0',
+          py: 8,
+          textAlign: 'center',
+          fontFamily: '"Share Tech Mono", monospace',
+        }}
+      >
+        <Container maxWidth="sm">
+          <CodeIcon sx={{ fontSize: 40, mb: 2 }} />
+          <Typography 
+            variant="h5" 
+            component="h2"
+            gutterBottom
+            sx={{ 
+              fontFamily: '"Share Tech Mono", monospace', 
+              mb: 3
+            }}
+          >
+            READY TO BEGIN?
+          </Typography>
+          
+          <Grid container spacing={3} justifyContent="center">
+            <Grid item xs={12} sm={6}>
+              <Button 
+                variant="contained"
+                fullWidth 
+                component={Link}
+                href="/why-nostr"
+                sx={{ 
+                  bgcolor: '#0f0',
+                  color: '#000',
+                  fontFamily: '"Share Tech Mono", monospace',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    bgcolor: '#0c0',
+                  }
+                }}
+              >
+                WHY_NOSTR
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Button 
+                variant="outlined"
+                fullWidth 
+                component={Link}
+                href="/building-eventstr"
+                sx={{ 
+                  color: '#0f0',
+                  borderColor: '#0f0',
+                  fontFamily: '"Share Tech Mono", monospace',
+                  '&:hover': {
+                    borderColor: '#0f0',
+                    bgcolor: '#0f01',
+                  }
+                }}
+              >
+                BUILDING_EVENTSTR
+              </Button>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Footer */}
+      <Box 
+        sx={{ 
+          bgcolor: '#111', 
+          color: '#0f0',
+          py: 3,
+          borderTop: '1px solid #0f0',
+          fontFamily: '"Share Tech Mono", monospace',
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography 
+            variant="body2" 
+            component="p"
+            textAlign="center"
+            sx={{ fontFamily: '"Share Tech Mono", monospace' }}
+          >
+            [EVENTSTR] © {new Date().getFullYear()} | PRIVACY THROUGH TECHNOLOGY
           </Typography>
         </Container>
       </Box>
-    </Box>
+
+      {/* Global Styles */}
+      <style jsx global>{`
+        @keyframes blink {
+          0% { opacity: 1; }
+          50% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        
+        body {
+          margin: 0;
+          background-color: #000;
+          color: #0f0;
+          font-family: 'Share Tech Mono', monospace;
+        }
+      `}</style>
+    </>
   );
 };
 
-export default HomePage;
+export default Home;
