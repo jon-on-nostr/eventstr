@@ -3,7 +3,6 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
-import Layout from '@/components/layout';
 
 
 const cypherpunkTheme = createTheme({

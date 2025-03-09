@@ -309,7 +309,7 @@ const Home = () => {
               mb: 4
             }}
           >
-            "We are building for a future where communication and exchange are free from centralized control."
+            &quot;We are building for a future where communication and exchange are free from centralized control.&quot;
           </Typography>
           
           <Box 
