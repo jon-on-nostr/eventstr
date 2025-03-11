@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Box, Container, Typography, Button, Grid, Divider } from '@mui/material';
+import { Box, Container, Typography, Button, Divider, Grid2, Grid } from '@mui/material';
 import { Code as CodeIcon, ElectricBolt, CurrencyBitcoin } from '@mui/icons-material';
 
 // Custom Nostr icon component 
@@ -126,8 +126,8 @@ const Home = () => {
             </Box>
           </Box>
 
-          <Grid container spacing={4} gap={{xs: 8, md: 0}} justifyContent="center">
-            <Grid item xs={12} md={4} textAlign="center">
+          <Grid2 container spacing={4}>
+            <Grid2 size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center">
               <Box>
                 <NostrIcon />
               </Box>
@@ -144,6 +144,7 @@ const Home = () => {
                   border: '1px dashed #0f0', 
                   p: 2,
                   height: '100%',
+                  width: '100%',
                   '&:hover': {
                     borderStyle: 'solid',
                   }
@@ -169,9 +170,9 @@ const Home = () => {
                   without central authority
                 </Typography>
               </Box>
-            </Grid>
+            </Grid2>
             
-            <Grid item xs={12} md={4} textAlign="center">
+            <Grid2 size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center">
               <Box>
                 <CurrencyBitcoin />
               </Box>
@@ -188,6 +189,7 @@ const Home = () => {
                   border: '1px dashed #0f0', 
                   p: 2,
                   height: '100%',
+                  width: '100%',
                   '&:hover': {
                     borderStyle: 'solid',
                   }
@@ -213,9 +215,9 @@ const Home = () => {
                   beyond state control
                 </Typography>
               </Box>
-            </Grid>
+            </Grid2>
             
-            <Grid item xs={12} md={4} textAlign="center">
+            <Grid2 size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center">
               <Box>
                 <ElectricBolt />
               </Box>
@@ -232,6 +234,7 @@ const Home = () => {
                   border: '1px dashed #0f0', 
                   p: 2,
                   height: '100%',
+                  width: '100%',
                   '&:hover': {
                     borderStyle: 'solid',
                   }
@@ -257,8 +260,8 @@ const Home = () => {
                   near-zero fees
                 </Typography>
               </Box>
-            </Grid>
-          </Grid>
+            </Grid2>
+          </Grid2>
 
           <Box textAlign="center" sx={{ mt: 15 }}>
             <Button 
@@ -393,8 +396,8 @@ const Home = () => {
             READY TO BEGIN?
           </Typography>
           
-          <Grid container spacing={3} justifyContent="center">
-            <Grid item xs={12} sm={6}>
+          <Grid2 container spacing={3}>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
               <Button 
                 variant="contained"
                 fullWidth 
@@ -412,8 +415,8 @@ const Home = () => {
               >
                 WHY_NOSTR
               </Button>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Grid2>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
               <Button 
                 variant="outlined"
                 fullWidth 
@@ -431,8 +434,8 @@ const Home = () => {
               >
                 BUILDING_EVENTSTR
               </Button>
-            </Grid>
-          </Grid>
+            </Grid2>
+          </Grid2>
         </Container>
       </Box>
 
