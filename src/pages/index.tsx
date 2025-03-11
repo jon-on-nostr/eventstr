@@ -83,7 +83,13 @@ const Home = () => {
               sx={{ 
                 fontFamily: '"VT323", monospace',
                 fontSize: { xs: '2.5rem', md: '4rem' },
-                letterSpacing: '0.1em'
+                letterSpacing: '0.1em',
+                background: 'linear-gradient(90deg, #0f0 0%, #0f0 50%, #8a2be2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: '0 0 10px rgba(0, 255, 0, 0.5), 0 0 15px rgba(138, 43, 226, 0.3)',
+                display: 'inline-block'
               }}
             >
               &lt;EVENTSTR/&gt;
@@ -95,7 +101,7 @@ const Home = () => {
               sx={{ 
                 fontFamily: '"Share Tech Mono", monospace',
                 color: '#0c0',
-                mb: 4
+                mb: 4,
               }}
             >
               BUILDING THE DECENTRALIZED FUTURE
