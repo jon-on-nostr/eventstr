@@ -82,32 +82,6 @@ const BuildingEventstr = () => {
               We&apos;re developing novel ways to connect online interactions with real-world experiences, 
               all powered by decentralized protocols.
             </Typography>
-            <Box sx={{ 
-              display: 'inline-block', 
-              border: '1px solid #0f0', 
-              p: 2, 
-              mb: 4,
-              maxWidth: '100%',
-              overflow: 'auto'
-            }}>
-              <Typography 
-                variant="body1" 
-                component="p"
-                sx={{ 
-                  fontFamily: '"Share Tech Mono", monospace',
-                  textAlign: 'left',
-                  lineHeight: '1.7',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                $ ./init_eventstr_platform.sh<br />
-                &gt; Initializing community tools<br />
-                &gt; Connecting digital to physical<br />
-                &gt; Deploying badge system<br />
-                &gt; Ready for sovereign communities...<br />
-                <Box component="span" sx={{ animation: 'blink 1s step-end infinite' }}>_</Box>
-              </Typography>
-            </Box>
           </Box>
         </Container>
       </Box>
@@ -213,7 +187,7 @@ const BuildingEventstr = () => {
                 textAlign: 'center'
               }}
             >
-              &quot;We&apos;re not just building another social platform—we&apos;re creating infrastructure for sovereign communities.&quot;
+              &quot;We&apos;re not just building another social platform — we&apos;re creating infrastructure for sovereign communities... with badges&quot;
             </Typography>
           </Box>
           
@@ -285,7 +259,7 @@ const BuildingEventstr = () => {
                         flexGrow: 1
                       }}
                     >
-                      Design custom badges for your community. Assign them to recognize contributions, attendance, or achievements.
+                      Create custom badges for your community. Assign them to recognize contributions, attendance, or achievements.
                     </Typography>
                     <CodeIcon sx={{ alignSelf: 'center' }} />
                   </Box>
@@ -322,7 +296,7 @@ const BuildingEventstr = () => {
                         flexGrow: 1
                       }}
                     >
-                      Accept badges from trusted issuers. Display your achievements on your Nostr profile and compatible platforms.
+                      Accept badges from trusted issuers. Display your achievements on your Nostr profile and all compatible clients.
                     </Typography>
                     <BadgeIcon sx={{ alignSelf: 'center' }} />
                   </Box>
