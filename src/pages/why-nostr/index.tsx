@@ -171,7 +171,7 @@ const WhyNostr = () => {
                   Nostr is a simple, open protocol that enables global, decentralized, and censorship-resistant communication.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
-                  Unlike Twitter, Facebook, or Instagram, no single entity controls Nostr. Your data isn't sold to advertisers, because it isn't collected.
+                  Unlike Twitter, Facebook, or Instagram, no single entity controls Nostr. Your data isn&apos;t sold to advertisers, because it isn&apos;t collected.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
                   With Nostr, you own your identity through cryptographic keys. No phone numbers, no emails, no KYC. Just pure, sovereign control.
@@ -288,7 +288,7 @@ const WhyNostr = () => {
                 pl: 2
               }}
             >
-              The world's first and most secure decentralized digital currency. A monetary system beyond state control.
+              The world&apos;s first and most secure decentralized digital currency. A monetary system beyond state control.
             </Typography>
             
             <Accordion 
@@ -324,10 +324,10 @@ const WhyNostr = () => {
                   Bitcoin is the first truly scarce digital asset—only 21 million will ever exist. In contrast, fiat currencies can be printed at will, devaluing your savings.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
-                  Bitcoin operates on a decentralized network. No central bank, no CEO, no single point of failure. It's money that governments cannot easily seize or censor.
+                  Bitcoin operates on a decentralized network. No central bank, no CEO, no single point of failure. It&apos;s money that governments cannot easily seize or censor.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
-                  When you hold Bitcoin, you're not trusting a bank or payment processor. You're trusting mathematics and open-source code that anyone can verify.
+                  When you hold Bitcoin, you&apos;re not trusting a bank or payment processor. You&apos;re trusting mathematics and open-source code that anyone can verify.
                 </Typography>
               </AccordionDetails>
             </Accordion>
@@ -362,7 +362,7 @@ const WhyNostr = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
-                  Bitcoin is secured by cryptography and a process called "proof of work." Thousands of computers (miners) compete to solve complex mathematical problems.
+                  Bitcoin is secured by cryptography and a process called &quot;proof of work.&quot; Thousands of computers (miners) compete to solve complex mathematical problems.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
                   This mining process makes the Bitcoin ledger immutable—to change history, an attacker would need more computing power than the entire network combined.
@@ -474,10 +474,10 @@ const WhyNostr = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
-                  The Lightning Network is a "Layer 2" protocol built on top of Bitcoin. It allows for instant, high-volume micropayments without waiting for blockchain confirmations.
+                  The Lightning Network is a &quot;Layer 2&quot; protocol built on top of Bitcoin. It allows for instant, high-volume micropayments without waiting for blockchain confirmations.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
-                  Bitcoin's base layer prioritizes security and decentralization over speed. Lightning solves this by creating payment channels between users that can handle thousands of transactions per second.
+                  Bitcoin&apos;s base layer prioritizes security and decentralization over speed. Lightning solves this by creating payment channels between users that can handle thousands of transactions per second.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
                   With Lightning, you can send 1 satoshi (0.00000001 BTC) instantly with negligible fees. This enables new use cases like streaming money, pay-per-view content, and micropayments for API calls.
@@ -515,13 +515,13 @@ const WhyNostr = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
-                  Lightning inherits Bitcoin's security model but with different trade-offs. Channels are secured by on-chain Bitcoin transactions, making them cryptographically secure.
+                  Lightning inherits Bitcoin&apos;s security model but with different trade-offs. Channels are secured by on-chain Bitcoin transactions, making them cryptographically secure.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace', mb: 2 }}>
-                  However, Lightning requires users to be online to detect and respond to potential channel closing attempts. This is why many users use "watchtowers"—services that monitor channels on their behalf.
+                  However, Lightning requires users to be online to detect and respond to potential channel closing attempts. This is why many users use &quot;watchtowers&quot; — services that monitor channels on their behalf.
                 </Typography>
                 <Typography sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
-                  For everyday spending, Lightning's security model is more than adequate. For large amounts, the base Bitcoin layer remains the most secure option.
+                  For everyday spending, Lightning&apos;s security model is more than adequate. For large amounts, the base Bitcoin layer remains the most secure option.
                 </Typography>
               </AccordionDetails>
             </Accordion>

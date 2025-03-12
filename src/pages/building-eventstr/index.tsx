@@ -213,7 +213,7 @@ const BuildingEventstr = () => {
                 textAlign: 'center'
               }}
             >
-              "We're not just building another social platform—we're creating infrastructure for sovereign communities."
+              &quot;We&apos;re not just building another social platform—we&apos;re creating infrastructure for sovereign communities.&quot;
             </Typography>
           </Box>
           
