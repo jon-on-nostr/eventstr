@@ -92,8 +92,8 @@ const WhyNostr = () => {
               }}
             >
               The centralized web has failed us. Big Tech surveils, censors, and manipulates. 
-              We're building a new internet—one that respects your sovereignty and privacy.
-              Here's why these protocols matter.
+              We&apos;re building a new internet—one that respects your sovereignty and privacy.
+              Here&apos;s why these protocols matter.
             </Typography>
           </Box>
         </Container>

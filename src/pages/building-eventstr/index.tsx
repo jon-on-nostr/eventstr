@@ -79,7 +79,7 @@ const BuildingEventstr = () => {
               }}
             >
               Eventstr is a platform for building communities that bridge the digital and non-digital worlds. 
-              We're developing novel ways to connect online interactions with real-world experiences, 
+              We&apos;re developing novel ways to connect online interactions with real-world experiences, 
               all powered by decentralized protocols.
             </Typography>
             <Box sx={{ 
@@ -641,7 +641,7 @@ const BuildingEventstr = () => {
                   fontFamily: '"Share Tech Mono", monospace',
                 }}
               >
-                Send us a message over Nostr. We're building in public and value your feedback.
+                Send us a message over Nostr. We&apos;re building in public and value your feedback.
               </Typography>
               
               <Box sx={{ mb: 3, display: 'flex', alignItems: 'center' }}>
