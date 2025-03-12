@@ -18,7 +18,7 @@ import {
   Construction as ConstructionIcon,
   ConnectWithoutContact as ConnectIcon
 } from '@mui/icons-material';
-import Navbar from '../../components/NavBar';
+import Navbar from '../../components/Navbar';
 
 // Custom Nostr icon component 
 const NostrIcon = () => (

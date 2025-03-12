@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Box, Container, Typography, Button, Divider, Grid2, Grid } from '@mui/material';
 import { Code as CodeIcon, ElectricBolt, CurrencyBitcoin } from '@mui/icons-material';
-import Navbar from '../components/NavBar';
+import Navbar from '../components/Navbar';
 
 // Custom Nostr icon component 
 const NostrIcon = () => (
