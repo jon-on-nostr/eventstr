@@ -17,6 +17,7 @@ import {
   Key as KeyIcon,
   Code as CodeIcon
 } from '@mui/icons-material';
+import Navbar from '../../components/NavBar';
 
 // Custom Nostr icon component 
 const NostrIcon = () => (
@@ -43,58 +44,7 @@ const LightningIcon = () => (
 const WhyNostr = () => {
   return (
     <>
-      {/* Terminal-style Header */}
-      <Box 
-        sx={{ 
-          bgcolor: '#000', 
-          color: '#0f0',
-          borderBottom: '1px solid #0f0',
-          py: 2,
-          fontFamily: '"Share Tech Mono", monospace',
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h5" component="h1" sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
-              <Link href="/" style={{ color: '#0f0', textDecoration: 'none' }}>
-                EVENTSTR
-              </Link>
-            </Typography>
-            <Box display="flex" alignItems="flex-end" flexDirection={{xs: "column", md: "row"}}>
-              <Button 
-                color="inherit" 
-                component={Link}
-                href="/why-nostr"
-                sx={{ 
-                  fontFamily: '"Share Tech Mono", monospace',
-                  mr: 2,
-                  bgcolor: '#0f03',
-                  textDecoration: 'underline',
-                  '&:hover': {
-                    bgcolor: '#0f05',
-                  }
-                }}
-              >
-                WHY_NOSTR
-              </Button>
-              <Button 
-                color="inherit" 
-                component={Link}
-                href="/building-eventstr"
-                sx={{ 
-                  fontFamily: '"Share Tech Mono", monospace',
-                  '&:hover': {
-                    bgcolor: '#0f03',
-                    textDecoration: 'underline',
-                  }
-                }}
-              >
-                BUILDING_EVENTSTR
-              </Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+      <Navbar />
 
       {/* Hero Section */}
       <Box 
@@ -104,9 +54,11 @@ const WhyNostr = () => {
           pt: 8,
           pb: 6,
           fontFamily: '"Share Tech Mono", monospace',
+          width: '100%',
+          overflowX: 'hidden'
         }}
       >
-        <Container maxWidth="md">
+        <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 } }}>
           <Box sx={{ mb: 6, textAlign: 'center' }}>
             <Typography 
               variant="h2" 
@@ -114,14 +66,16 @@ const WhyNostr = () => {
               gutterBottom
               sx={{ 
                 fontFamily: '"VT323", monospace',
-                fontSize: { xs: '2.5rem', md: '4rem' },
-                letterSpacing: '0.1em',
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '4rem' },
+                letterSpacing: { xs: '0.05em', md: '0.1em' },
                 background: 'linear-gradient(90deg, #0f0 0%, #0f0 50%, #8a2be2 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 textShadow: '0 0 10px rgba(0, 255, 0, 0.5), 0 0 15px rgba(138, 43, 226, 0.3)',
-                display: 'inline-block'
+                display: 'inline-block',
+                maxWidth: '100%',
+                wordBreak: 'break-word'
               }}
             >
               WHY_DECENTRALIZE?
@@ -133,7 +87,8 @@ const WhyNostr = () => {
                 fontFamily: '"Share Tech Mono", monospace',
                 mb: 4,
                 maxWidth: '700px',
-                mx: 'auto'
+                mx: 'auto',
+                px: { xs: 2, sm: 0 }
               }}
             >
               The centralized web has failed us. Big Tech surveils, censors, and manipulates. 
