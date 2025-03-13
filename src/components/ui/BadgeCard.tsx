@@ -1,9 +1,14 @@
+import React from 'react';
 import { Box, Typography, Button, Card, CardContent, CardActions } from '@mui/material';
-import { Badge } from '../../services/nostrService';
-import { useBadges } from '../../contexts/BadgeContext';
+import { Badge } from '@/services/nostrService';
+import { useBadges } from '@/contexts/BadgeContext';
+
+interface BadgeCardProps {
+  badge: Badge;
+}
 
 // Create a reusable BadgeCard component
-const BadgeCard = ({ badge }: { badge: Badge }) => {
+const BadgeCard: React.FC<BadgeCardProps> = ({ badge }) => {
   const { loadBadgeDetails } = useBadges();
 
   const handleViewDetails = () => {

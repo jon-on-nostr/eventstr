@@ -1,32 +1,11 @@
-import NDK, { NDKEvent, NDKFilter, NDKNip07Signer, NDKUser } from '@nostr-dev-kit/ndk';
-import { nip19 } from 'nostr-tools';
+import { NDKEvent, NDKFilter, NDKUser } from '@nostr-dev-kit/ndk';
+import { nip19, getPublicKey } from 'nostr-tools';
 import DOMPurify from 'dompurify';
-
-// Initialize NDK with relays
-const relays = [
-  'wss://relay.damus.io',
-  'wss://relay.nostr.band',
-  'wss://nos.lol',
-  'wss://relay.snort.social',
-];
+import { ndkService, ensureNDKConnected } from './ndkService';
 
 // Badge-related event kinds
 const BADGE_DEFINITION = 30009; // NIP-58 Badge Definition
 const BADGE_AWARD = 8; // NIP-58 Badge Award
-
-// Create NDK instance
-const ndk = new NDK({ explicitRelayUrls: relays });
-
-// Initialize NDK
-export const initializeNDK = async (): Promise<void> => {
-  try {
-    await ndk.connect();
-    console.log('Connected to Nostr relays');
-  } catch (error) {
-    console.error('Failed to connect to Nostr relays:', error);
-    throw error;
-  }
-};
 
 // Badge interface
 export interface Badge {
@@ -71,12 +50,6 @@ const sanitizeImageUrl = (url: string | undefined | null): string => {
     if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
       return 'https://placehold.co/200x200/1a1a1a/00ff00?text=BADGE';
     }
-
-    // Optional: whitelist domains
-    // const allowedDomains = ['i.imgur.com', 'images.nostr.build', ...];
-    // if (!allowedDomains.includes(parsedUrl.hostname)) {
-    //   return 'https://placehold.co/200x200/1a1a1a/00ff00?text=BADGE';
-    // }
 
     return url;
   } catch (e) {
@@ -153,6 +126,149 @@ const eventToBadge = (event: NDKEvent): Badge => {
   }
 };
 
+// Get user profile
+export const getUserProfile = async (
+  pubkey: string
+): Promise<{
+  name?: string;
+  displayName?: string;
+  picture?: string;
+}> => {
+  try {
+    const ndk = await ensureNDKConnected();
+    console.log('what is ndk here: ', ndk);
+    const user = ndk.getUser({ pubkey });
+    console.log('what be user: ', user);
+    await user.fetchProfile();
+
+    return {
+      name: user.profile?.name,
+      displayName: user.profile?.displayName || user.profile?.name,
+      picture: user.profile?.picture,
+    };
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return {};
+  }
+};
+
+// Sign in with browser extension (NIP-07)
+export const signInWithExtension = async (): Promise<{
+  pubkey?: string;
+  npub?: string;
+  error?: string;
+}> => {
+  try {
+    if (typeof window === 'undefined' || !window.nostr) {
+      return {
+        error: 'No Nostr extension found. Please install a Nostr extension like Alby or nos2x.',
+      };
+    }
+
+    const { pubkey, npub } = await ndkService.connectWithNip07Signer();
+    return { pubkey, npub };
+  } catch (error) {
+    console.error('Error signing in with extension:', error);
+    return { error: String(error) || 'Failed to sign in with extension' };
+  }
+};
+
+// Add this function to create a user from nsec
+export const loginWithNsec = async (
+  nsec: string
+): Promise<{
+  pubkey?: string;
+  npub?: string;
+  error?: string;
+}> => {
+  try {
+    // Ensure NDK is connected
+    await ensureNDKConnected();
+
+    // Validate nsec format
+    if (!nsec.startsWith('nsec1')) {
+      return { error: 'Invalid nsec format. It should start with nsec1' };
+    }
+
+    // Decode nsec to get private key
+    let privateKey: Uint8Array;
+    try {
+      const decoded = nip19.decode(nsec);
+      if (decoded.type !== 'nsec') {
+        return { error: 'Invalid nsec format' };
+      }
+      privateKey = decoded.data as Uint8Array;
+    } catch (e) {
+      return { error: 'Invalid nsec. Could not decode.' };
+    }
+
+    // Derive public key from private key
+    const pubkey = getPublicKey(privateKey);
+    const npub = nip19.npubEncode(pubkey);
+
+    return { pubkey, npub };
+  } catch (error) {
+    console.error('Error logging in with nsec:', error);
+    return { error: String(error) || 'Failed to login with nsec' };
+  }
+};
+
+// Get all badges
+export const getAllBadges = async ({
+  limit = 20,
+  since,
+  until,
+  authors,
+}: {
+  limit?: number;
+  since?: number;
+  until?: number;
+  authors?: string[];
+} = {}): Promise<{
+  badges: Badge[];
+  error?: string;
+}> => {
+  try {
+    const ndk = await ensureNDKConnected();
+
+    // Enforce reasonable limits
+    const safeLimit = Math.min(Math.max(1, limit), 100);
+
+    console.log(`Fetching badges with limit: ${safeLimit}`);
+
+    // Create filter for badge definitions
+    const filter: NDKFilter = {
+      kinds: [BADGE_DEFINITION],
+      limit: safeLimit,
+    };
+
+    // Add optional filters if provided
+    if (since) filter.since = since;
+    if (until) filter.until = until;
+    if (authors && authors.length > 0) filter.authors = authors;
+
+    console.log('Filter being used:', filter);
+
+    // Fetch events
+    const events = await ndk.fetchEvents(filter);
+
+    console.log(`Received ${events.size} events from relays`);
+
+    // Convert events to badges and ensure we respect the limit
+    const badges = Array.from(events).map(eventToBadge).slice(0, safeLimit);
+
+    console.log(`Returning ${badges.length} badges after processing`);
+
+    return { badges };
+  } catch (error) {
+    console.error('Error fetching badges:', error);
+    return {
+      badges: [],
+      error: 'Failed to fetch badges. Please try again.',
+    };
+  }
+};
+
 // Search badges by npub
 export const searchBadgesByNpub = async (
   npub: string
@@ -190,7 +306,7 @@ export const searchBadgesByNpub = async (
       limit: 50,
     };
 
-    const createdEvents = await ndk.fetchEvents(createdFilter);
+    const createdEvents = await ndkService.ndk.fetchEvents(createdFilter);
     const badgesCreated = Array.from(createdEvents).map(eventToBadge);
 
     // 2. Find badges awarded to this user
@@ -200,7 +316,7 @@ export const searchBadgesByNpub = async (
       limit: 50,
     };
 
-    const receivedEvents = await ndk.fetchEvents(receivedFilter);
+    const receivedEvents = await ndkService.ndk.fetchEvents(receivedFilter);
 
     // For each badge award, we need to fetch the badge definition
     const badgeDefinitionIds = new Set<string>();
@@ -217,7 +333,7 @@ export const searchBadgesByNpub = async (
       ids: Array.from(badgeDefinitionIds),
     };
 
-    const definitionEvents = await ndk.fetchEvents(definitionFilter);
+    const definitionEvents = await ndkService.ndk.fetchEvents(definitionFilter);
     const badgesReceived = Array.from(definitionEvents).map(eventToBadge);
 
     return {
@@ -230,143 +346,6 @@ export const searchBadgesByNpub = async (
       badgesCreated: [],
       badgesReceived: [],
       error: 'Failed to search badges. Please try again.',
-    };
-  }
-};
-
-// Get user profile
-export const getUserProfile = async (
-  npub: string
-): Promise<{
-  name?: string;
-  displayName?: string;
-  picture?: string;
-  error?: string;
-}> => {
-  try {
-    // Validate and convert npub to hex pubkey
-    let pubkey: string;
-    try {
-      if (npub.startsWith('npub')) {
-        const { data } = nip19.decode(npub);
-        pubkey = data as string;
-      } else {
-        // Assume it's already a hex pubkey
-        pubkey = npub;
-      }
-    } catch (error) {
-      return { error: 'Invalid npub format' };
-    }
-
-    // Create NDK user from pubkey
-    const user = new NDKUser({ pubkey });
-
-    // Fetch user profile
-    await user.fetchProfile();
-
-    return {
-      name: user.profile?.name,
-      displayName: user.profile?.displayName,
-      picture: user.profile?.image,
-    };
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    return { error: 'Failed to fetch user profile' };
-  }
-};
-
-// Sign in with NIP-07 extension (e.g., Alby, nos2x)
-export const signInWithExtension = async (): Promise<{
-  pubkey?: string;
-  npub?: string;
-  error?: string;
-}> => {
-  try {
-    // Check if window.nostr is available (NIP-07)
-    if (typeof window !== 'undefined' && window.nostr) {
-      const signer = new NDKNip07Signer();
-      ndk.signer = signer;
-
-      // Get public key
-      const user = await signer.user();
-      const npub = nip19.npubEncode(user.pubkey);
-
-      return {
-        pubkey: user.pubkey,
-        npub,
-      };
-    } else {
-      return {
-        error:
-          'No Nostr extension found. Please install Alby, nos2x, or another NIP-07 compatible extension.',
-      };
-    }
-  } catch (error) {
-    console.error('Error signing in with extension:', error);
-    return { error: 'Failed to sign in with extension' };
-  }
-};
-
-// // Add window.nostr type for TypeScript
-// declare global {
-//   interface Window {
-//     nostr?: {
-//       getPublicKey: () => Promise<string>;
-//       signEvent: (event: any) => Promise<any>;
-//     };
-//   }
-// }
-
-// Get all badges with pagination and filtering options
-export const getAllBadges = async ({
-  limit = 20,
-  since,
-  until,
-  authors,
-}: {
-  limit?: number;
-  since?: number;
-  until?: number;
-  authors?: string[];
-} = {}): Promise<{
-  badges: Badge[];
-  error?: string;
-}> => {
-  try {
-    // Enforce reasonable limits
-    const safeLimit = Math.min(Math.max(1, limit), 3);
-
-    console.log(`Fetching badges with limit: ${safeLimit}`);
-
-    // Create filter for badge definitions
-    const filter: NDKFilter = {
-      kinds: [BADGE_DEFINITION],
-      limit: safeLimit,
-    };
-
-    // Add optional filters if provided
-    if (since) filter.since = since;
-    if (until) filter.until = until;
-    if (authors && authors.length > 0) filter.authors = authors;
-
-    console.log('Filter being used:', filter);
-
-    // Fetch events
-    const events = await ndk.fetchEvents(filter);
-
-    console.log(`Received ${events.size} events from relays`);
-
-    // Convert events to badges and ensure we respect the limit
-    const badges = Array.from(events).map(eventToBadge).slice(0, safeLimit); // Explicitly enforce the limit here
-
-    console.log(`Returning ${badges.length} badges after processing`);
-
-    return { badges };
-  } catch (error) {
-    console.error('Error fetching badges:', error);
-    return {
-      badges: [],
-      error: 'Failed to fetch badges. Please try again.',
     };
   }
 };
@@ -389,7 +368,7 @@ export const getTrendingBadges = async (
       since: Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60, // Last 30 days
     };
 
-    const awardEvents = await ndk.fetchEvents(awardFilter);
+    const awardEvents = await ndkService.ndk.fetchEvents(awardFilter);
 
     // Count badge references
     const badgeCounts = new Map<string, number>();
@@ -418,7 +397,7 @@ export const getTrendingBadges = async (
       ids: topBadgeIds,
     };
 
-    const badgeEvents = await ndk.fetchEvents(badgeFilter);
+    const badgeEvents = await ndkService.ndk.fetchEvents(badgeFilter);
 
     // Convert to badges and sort by award count
     const badges = Array.from(badgeEvents)
@@ -467,7 +446,7 @@ export const searchBadgesByTerm = async (
     }
 
     // Fetch events
-    const events = await ndk.fetchEvents(filter);
+    const events = await ndkService.ndk.fetchEvents(filter);
 
     // Filter and convert events to badges
     const badges = Array.from(events)
@@ -521,7 +500,7 @@ export const getBadgeDetails = async (
       ids: [badgeId],
     };
 
-    const badgeEvents = await ndk.fetchEvents(badgeFilter);
+    const badgeEvents = await ndkService.ndk.fetchEvents(badgeFilter);
 
     if (badgeEvents.size === 0) {
       return { error: 'Badge not found' };
@@ -537,7 +516,7 @@ export const getBadgeDetails = async (
       limit: 100,
     };
 
-    const awardEvents = await ndk.fetchEvents(awardFilter);
+    const awardEvents = await ndkService.ndk.fetchEvents(awardFilter);
 
     // Process award events
     const recipients = new Set<string>();

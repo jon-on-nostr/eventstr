@@ -26,13 +26,14 @@ import {
   Badge as BadgeIcon,
   Add as AddIcon,
   Login as LoginIcon,
-  Key as KeyIcon,
   AssignmentInd as AssignIcon,
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
 import BadgeCard from '@/components/ui/BadgeCard';
 import { BadgeProvider, useBadges } from '../../contexts/BadgeContext';
+import LoginModal from '@/components/ui/LoginModal';
+import UserProfileButton from '@/components/ui/UserProfileButton';
 
 // Mock badge data for UI development
 const mockBadges = [
@@ -80,6 +81,9 @@ const BadgesPageContent = () => {
     isLoadingUserBadges,
   } = useBadges();
 
+  // Add these states to your BadgesPageContent component
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
@@ -89,6 +93,15 @@ const BadgesPageContent = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     performSearch(searchQuery);
+  };
+
+  // Add these handlers
+  const handleOpenLoginModal = () => {
+    setLoginModalOpen(true);
+  };
+
+  const handleCloseLoginModal = () => {
+    setLoginModalOpen(false);
   };
 
   useEffect(() => {
@@ -531,22 +544,7 @@ const BadgesPageContent = () => {
             }}
           >
             {isLoggedIn ? (
-              <Box sx={{ textAlign: 'center' }}>
-                <Chip
-                  icon={<CheckCircleIcon />}
-                  label="SIGNED IN AS: npub1y..."
-                  color="success"
-                  variant="outlined"
-                  sx={{
-                    fontFamily: '"Share Tech Mono", monospace',
-                    borderColor: '#0f0',
-                    color: '#0f0',
-                    '& .MuiChip-icon': {
-                      color: '#0f0',
-                    },
-                  }}
-                />
-              </Box>
+              <UserProfileButton />
             ) : (
               <Box>
                 <Typography
@@ -571,7 +569,7 @@ const BadgesPageContent = () => {
                   <Button
                     variant="outlined"
                     startIcon={<LoginIcon />}
-                    onClick={login}
+                    onClick={handleOpenLoginModal}
                     sx={{
                       color: '#0f0',
                       borderColor: '#0f0',
@@ -581,22 +579,7 @@ const BadgesPageContent = () => {
                       },
                     }}
                   >
-                    Sign in with Extension
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={<KeyIcon />}
-                    onClick={login}
-                    sx={{
-                      color: '#0f0',
-                      borderColor: '#0f0',
-                      '&:hover': {
-                        borderColor: '#0f0',
-                        bgcolor: 'rgba(0,255,0,0.1)',
-                      },
-                    }}
-                  >
-                    Sign in with nsec
+                    SIGN_IN
                   </Button>
                 </Box>
               </Box>
@@ -983,6 +966,9 @@ const BadgesPageContent = () => {
           </Paper>
         </Container>
       </Box>
+
+      {/* Login Modal */}
+      <LoginModal open={loginModalOpen} onClose={handleCloseLoginModal} />
     </>
   );
 };

@@ -1,15 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
   Badge,
-  initializeNDK,
-  searchBadgesByNpub,
-  signInWithExtension,
   getUserProfile,
+  signInWithExtension,
+  loginWithNsec as nsecLogin,
   getAllBadges,
+  searchBadgesByNpub,
   getTrendingBadges,
   getBadgeDetails,
 } from '../services/nostrService';
 import { nip19 } from 'nostr-tools';
+import { ndkService } from '../services/ndkService';
 
 interface BadgeContextType {
   // Authentication
@@ -21,7 +22,8 @@ interface BadgeContextType {
     displayName?: string;
     picture?: string;
   };
-  login: () => Promise<void>;
+  login: () => Promise<{ success?: boolean; error?: string }>;
+  loginWithNsec: (nsec: string) => Promise<{ success?: boolean; error?: string }>;
   logout: () => void;
 
   // Badge search
@@ -112,7 +114,9 @@ export const BadgeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     const init = async () => {
       try {
-        await initializeNDK();
+        // Connect to NDK
+        await ndkService.connect();
+        console.log('should be connected to ndk service');
         // Load default badges when the component mounts
         await loadDefaultBadges();
       } catch (error) {
@@ -124,13 +128,12 @@ export const BadgeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, []);
 
   // Login function
-  const login = async () => {
+  const login = async (): Promise<{ success?: boolean; error?: string }> => {
     try {
       const result = await signInWithExtension();
 
       if (result.error) {
-        console.error(result.error);
-        return;
+        return { error: result.error };
       }
 
       if (result.pubkey && result.npub) {
@@ -149,9 +152,52 @@ export const BadgeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         // Load user badges
         await refreshUserBadges();
+
+        return { success: true };
       }
+
+      return { error: 'Failed to sign in' };
     } catch (error) {
       console.error('Login error:', error);
+      return { error: 'An unexpected error occurred during login' };
+    }
+  };
+
+  // Login function for nsec
+  const loginWithNsec = async (
+    nsecValue: string
+  ): Promise<{ success?: boolean; error?: string }> => {
+    try {
+      const result = await nsecLogin(nsecValue);
+      console.log('What result of the login', result);
+      if (result.error) {
+        return { error: result.error };
+      }
+
+      if (result.pubkey && result.npub) {
+        // Get user profile
+        const profile = await getUserProfile(result.pubkey);
+
+        setCurrentUser({
+          pubkey: result.pubkey,
+          npub: result.npub,
+          name: profile.name,
+          displayName: profile.displayName,
+          picture: profile.picture,
+        });
+
+        setIsLoggedIn(true);
+
+        // Load user badges
+        await refreshUserBadges();
+
+        return { success: true };
+      }
+
+      return { error: 'Failed to sign in with nsec' };
+    } catch (error) {
+      console.error('Nsec login error:', error);
+      return { error: 'An unexpected error occurred during login' };
     }
   };
 
@@ -228,7 +274,7 @@ export const BadgeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setIsSearching(true);
 
     try {
-      const result = await getAllBadges({ limit: 16 });
+      const result = await getAllBadges({ limit: 3 });
 
       setSearchResults({
         badgesCreated: result.badges,
@@ -330,6 +376,7 @@ export const BadgeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     isLoggedIn,
     currentUser,
     login,
+    loginWithNsec,
     logout,
     searchQuery,
     setSearchQuery,
