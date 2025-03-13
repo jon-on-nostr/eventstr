@@ -30,11 +30,9 @@ import {
 } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
 import BadgeCard from '@/components/ui/BadgeCard';
-import { BadgeProvider, useBadges } from '../../contexts/BadgeContext';
 import LoginModal from '@/components/ui/LoginModal';
 import UserProfileButton from '@/components/ui/UserProfileButton';
 import NostrIcon from '@/components/ui/NostrIcon';
-import { useNostr } from '@/hooks/useNostr';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { AuthResult } from '@/services/auth';
@@ -68,7 +66,7 @@ const mockBadges = [
 ];
 
 // The main component that uses the badge context
-const BadgesPageContent = () => {
+const BadgesPage = () => {
   // State for the current tab
   const [currentTab, setCurrentTab] = useState(0);
   const [searchNpub, setSearchNpub] = useState('');
@@ -1007,15 +1005,6 @@ const BadgesPageContent = () => {
         isLoading={authLoading}
       />
     </>
-  );
-};
-
-// Wrapper component that provides the BadgeContext
-const BadgesPage = () => {
-  return (
-    <BadgeProvider>
-      <BadgesPageContent />
-    </BadgeProvider>
   );
 };
 

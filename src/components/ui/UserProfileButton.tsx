@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Button, Avatar, Typography, Menu, MenuItem, Box, Divider } from '@mui/material';
 import { AccountCircle as AccountIcon, Logout as LogoutIcon } from '@mui/icons-material';
-import { useBadges } from '@/contexts/BadgeContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const UserProfileButton: React.FC = () => {
-  const { currentUser, logout } = useBadges();
+  const { currentUser, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  if (!currentUser) {
+    return null;
+  }
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -20,8 +24,10 @@ const UserProfileButton: React.FC = () => {
     handleClose();
   };
 
-  const displayName = currentUser.displayName || currentUser.name || 'User';
-  const shortNpub = currentUser.npub ? `${currentUser.npub.substring(0, 8)}...` : '';
+  const displayName = currentUser.profile?.displayName || currentUser.profile?.name || 'User';
+  const shortNpub = currentUser.profile?.npub
+    ? `${currentUser.profile?.npub.substring(0, 8)}...`
+    : '';
 
   return (
     <>
@@ -39,9 +45,9 @@ const UserProfileButton: React.FC = () => {
           },
         }}
       >
-        {currentUser.picture ? (
+        {currentUser.profile?.picture ? (
           <Avatar
-            src={currentUser.picture}
+            src={currentUser.profile.picture}
             alt={displayName}
             sx={{ width: 24, height: 24, border: '1px solid #0f0' }}
           />

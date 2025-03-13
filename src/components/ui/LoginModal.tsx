@@ -13,7 +13,7 @@ import {
   Divider,
 } from '@mui/material';
 import { Key as KeyIcon, Extension as ExtensionIcon } from '@mui/icons-material';
-import { useBadges } from '@/contexts/BadgeContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface LoginModalProps {
   open: boolean;
@@ -21,7 +21,7 @@ interface LoginModalProps {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
-  const { login, loginWithNsec } = useBadges();
+  const { loginWithExtension, loginWithPrivateKey } = useAuth();
   const [nsec, setNsec] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
     setError(null);
     setLoading(true);
     try {
-      const result = await login();
+      const result = await loginWithExtension();
       if (result?.success) {
         onClose();
       } else if (result?.error) {
@@ -54,7 +54,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
     setError(null);
     setLoading(true);
     try {
-      const result = await loginWithNsec(nsec);
+      const result = await loginWithPrivateKey(nsec);
 
       if (result?.success) {
         onClose();
