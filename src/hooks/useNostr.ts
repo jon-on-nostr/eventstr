@@ -1,64 +1,70 @@
-import { useState, useEffect } from 'react';
-import { NostrWindow, UserProfile, NostrLoginStatus } from '@/types/nostr';
+import { useEffect, useState } from 'react';
+import NDK, { NDKEvent } from '@nostr-dev-kit/ndk';
+import { getNDK, ensureNDKConnected, ConnectionState } from '../services/ndk';
 
-export const useNostr = () => {
-  const [loginStatus, setLoginStatus] = useState<NostrLoginStatus>('initial');
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isNostrAvailable, setIsNostrAvailable] = useState<boolean>(false);
+/**
+ * Hook for interacting with the NDK instance
+ */
+export function useNostr() {
+  const [connectionState, setConnectionState] = useState<ConnectionState>(
+    ConnectionState.DISCONNECTED
+  );
+  const [ndk, setNdk] = useState<NDK | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
+  // Initialize NDK
   useEffect(() => {
-    const checkNostrAvailability = () => {
-      const nostrWindow = window as unknown as NostrWindow;
-      setIsNostrAvailable(!!nostrWindow.nostr);
+    const initializeNdk = async () => {
+      try {
+        // Get NDK instance
+        const ndkInstance = getNDK();
+        setNdk(ndkInstance);
+
+        // Try to connect if not already connected
+        await ensureNDKConnected();
+        setIsReady(true);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to initialize NDK'));
+        console.error('Error initializing NDK:', err);
+      }
     };
 
-    checkNostrAvailability();
+    initializeNdk();
+
+    return () => {
+      // Cleanup if needed
+    };
   }, []);
 
-  const login = async (): Promise<void> => {
+  /**
+   * Publish an event to the Nostr network
+   */
+  const publishEvent = async (eventData: NDKEvent): Promise<NDKEvent | null> => {
     try {
-      setLoginStatus('loading');
-      
-      if (!isNostrAvailable) {
-        throw new Error('No NOSTR provider found. Please install a NOSTR browser extension.');
+      if (!isReady) {
+        await ensureNDKConnected();
       }
 
-      const nostrWindow = window as unknown as NostrWindow;
-      const pubkey = await nostrWindow.nostr?.getPublicKey();
-
-      if (!pubkey) {
-        throw new Error('Failed to get public key');
-      }
-
-      const profile: UserProfile = {
-        pubkey,
-        displayName: `npub...${pubkey.slice(-4)}`,
-      };
-
-      setUserProfile(profile);
-      setLoginStatus('authenticated');
-      setError(null);
-      
+      const ndkInstance = getNDK();
+      // Create an NDKEvent first
+      const event = new NDKEvent(ndkInstance, eventData);
+      // Then publish it, which returns a Set<NDKRelay>
+      await event.publish();
+      // Return the event itself
+      return event;
     } catch (err) {
-      setLoginStatus('error');
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      setUserProfile(null);
+      console.error('Error publishing event:', err);
+      setError(err instanceof Error ? err : new Error('Failed to publish event'));
+      return null;
     }
   };
 
-  const logout = (): void => {
-    setLoginStatus('initial');
-    setUserProfile(null);
-    setError(null);
-  };
-
   return {
-    loginStatus,
-    userProfile,
+    ndk,
+    isReady,
+    connectionState,
     error,
-    login,
-    logout,
-    isNostrAvailable,
+    publishEvent,
   };
-};
+}
