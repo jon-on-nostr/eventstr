@@ -27,7 +27,6 @@ class NDKSingleton {
         'wss://relay.nostr.band',
         'wss://nos.lol',
         'wss://nostr.mom',
-        'wss://relay.current.fyi',
       ],
       autoConnectUserRelays: true,
     });
@@ -96,10 +95,6 @@ class NDKSingleton {
     );
   }
 
-  /**
-   * Connect to the relays if not already connected
-   * @returns Promise that resolves when connected
-   */
   public async connect(): Promise<void> {
     // If already connected, return immediately
     if (this.isConnected) {
@@ -118,16 +113,32 @@ class NDKSingleton {
     this._connectionPromise = new Promise<void>((resolve, reject) => {
       this._ndk
         .connect()
-        .then(() => {
-          // Only update state if we have at least one connected relay
-          if (this._ndk.pool?.connectedRelays?.length) {
-            this.updateConnectionState(ConnectionState.CONNECTED);
-            resolve();
-          } else {
-            const error = new Error('Connected but no relays available');
-            this.updateConnectionState(ConnectionState.ERROR, error);
-            reject(error);
+        .then(async () => {
+          // Wait for relays to connect with a timeout
+          let attempts = 0;
+          const maxAttempts = 10;
+          const checkInterval = 500; // 500ms between checks
+
+          const checkConnections = async (): Promise<boolean> => {
+            const connectedRelays = this._ndk.pool?.connectedRelays();
+            return connectedRelays && connectedRelays.length > 0;
+          };
+
+          while (attempts < maxAttempts) {
+            if (await checkConnections()) {
+              this.updateConnectionState(ConnectionState.CONNECTED);
+              resolve();
+              return;
+            }
+
+            attempts++;
+            await new Promise(r => setTimeout(r, checkInterval));
           }
+
+          // If we get here, we've timed out waiting for relays
+          const error = new Error('Timed out waiting for relay connections');
+          this.updateConnectionState(ConnectionState.ERROR, error);
+          reject(error);
         })
         .catch(error => {
           this.updateConnectionState(
@@ -206,7 +217,6 @@ class NDKSingleton {
         'wss://relay.nostr.band',
         'wss://nos.lol',
         'wss://nostr.mom',
-        'wss://relay.current.fyi',
       ],
       autoConnectUserRelays: true,
     });
