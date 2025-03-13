@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -18,6 +18,8 @@ import {
   Step,
   StepLabel,
   Grid2,
+  Avatar,
+  CircularProgress,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -28,7 +30,9 @@ import {
   AssignmentInd as AssignIcon,
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
-import Navbar from '../../components/Navbar';
+import Navbar from '@/components/Navbar';
+import BadgeCard from '@/components/ui/BadgeCard';
+import { BadgeProvider, useBadges } from '../../contexts/BadgeContext';
 
 // Mock badge data for UI development
 const mockBadges = [
@@ -58,20 +62,169 @@ const mockBadges = [
   },
 ];
 
-const BadgesPage = () => {
+// The main component that uses the badge context
+const BadgesPageContent = () => {
   // State for the current tab
   const [currentTab, setCurrentTab] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const {
+    isLoggedIn,
+    currentUser,
+    login,
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    isSearching,
+    searchError,
+    performSearch,
+    userBadges,
+    isLoadingUserBadges,
+  } = useBadges();
 
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
 
-  // Mock login function
-  const handleLogin = () => {
-    setIsLoggedIn(true);
+  // Handle search form submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    performSearch(searchQuery);
+  };
+
+  useEffect(() => {
+    // Load default badges when the component mounts
+    if (searchResults.badgesCreated.length === 0 && searchResults.badgesReceived.length === 0) {
+      performSearch('');
+    }
+  }, []);
+
+  const renderSearchResults = () => {
+    if (isSearching) {
+      return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress sx={{ color: '#0f0' }} />
+        </Box>
+      );
+    }
+
+    if (
+      searchError &&
+      searchResults.badgesCreated.length === 0 &&
+      searchResults.badgesReceived.length === 0
+    ) {
+      return (
+        <Alert
+          severity="error"
+          sx={{ mb: 3, bgcolor: '#300', color: '#f88', border: '1px solid #f88' }}
+        >
+          {searchError}
+        </Alert>
+      );
+    }
+
+    const hasUserProfile = !!searchResults.userProfile;
+    const hasResults =
+      searchResults.badgesCreated.length > 0 || searchResults.badgesReceived.length > 0;
+
+    if (!hasResults) {
+      return (
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          <BadgeIcon sx={{ fontSize: 60, opacity: 0.5, mb: 2 }} />
+          <Typography
+            variant="body2"
+            sx={{
+              fontFamily: '"Share Tech Mono", monospace',
+              opacity: 0.7,
+            }}
+          >
+            No badges found
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <>
+        {hasUserProfile && searchResults && (
+          <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+            {searchResults?.userProfile?.picture ? (
+              <Avatar
+                src={searchResults.userProfile.picture}
+                alt={
+                  searchResults.userProfile.displayName || searchResults.userProfile.name || 'User'
+                }
+                sx={{ width: 60, height: 60, border: '2px solid #0f0' }}
+              />
+            ) : (
+              <Avatar sx={{ width: 60, height: 60, bgcolor: '#0f0', color: '#000' }}>
+                {(
+                  searchResults?.userProfile?.displayName ||
+                  searchResults?.userProfile?.name ||
+                  'U'
+                ).charAt(0)}
+              </Avatar>
+            )}
+            <Box>
+              <Typography
+                variant="h6"
+                component="h3"
+                sx={{ fontFamily: '"Share Tech Mono", monospace' }}
+              >
+                {searchResults?.userProfile?.displayName ||
+                  searchResults?.userProfile?.name ||
+                  'Unknown User'}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontFamily: '"Share Tech Mono", monospace', opacity: 0.7 }}
+              >
+                {searchQuery}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
+        {searchResults.badgesReceived.length > 0 && (
+          <>
+            <Typography
+              variant="subtitle1"
+              component="h4"
+              gutterBottom
+              sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 3, mb: 2 }}
+            >
+              BADGES_RECEIVED
+            </Typography>
+            <Grid2 container spacing={3}>
+              {searchResults.badgesReceived.map(badge => (
+                <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                  <BadgeCard badge={badge} />
+                </Grid2>
+              ))}
+            </Grid2>
+          </>
+        )}
+
+        {searchResults.badgesCreated.length > 0 && (
+          <>
+            <Typography
+              variant="subtitle1"
+              component="h4"
+              gutterBottom
+              sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 4, mb: 2 }}
+            >
+              {hasUserProfile ? 'BADGES_CREATED' : 'BADGES'}
+            </Typography>
+            <Grid2 container spacing={3}>
+              {searchResults.badgesCreated.map(badge => (
+                <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                  <BadgeCard badge={badge} />
+                </Grid2>
+              ))}
+            </Grid2>
+          </>
+        )}
+      </>
+    );
   };
 
   return (
@@ -124,7 +277,7 @@ const BadgesPage = () => {
                 px: { xs: 2, sm: 0 },
               }}
             >
-              Verifiable credentials for your community. Create, assign, and display badges that
+              Verifiable credentials for your community. Create, assign, and supercharge badges that
               bridge digital and physical worlds.
             </Typography>
           </Box>
@@ -418,7 +571,7 @@ const BadgesPage = () => {
                   <Button
                     variant="outlined"
                     startIcon={<LoginIcon />}
-                    onClick={handleLogin}
+                    onClick={login}
                     sx={{
                       color: '#0f0',
                       borderColor: '#0f0',
@@ -433,7 +586,7 @@ const BadgesPage = () => {
                   <Button
                     variant="outlined"
                     startIcon={<KeyIcon />}
-                    onClick={handleLogin}
+                    onClick={login}
                     sx={{
                       color: '#0f0',
                       borderColor: '#0f0',
@@ -516,6 +669,7 @@ const BadgesPage = () => {
                 }}
               />
               <Button
+                onClick={handleSearch}
                 variant="contained"
                 startIcon={<SearchIcon />}
                 sx={{
@@ -531,120 +685,7 @@ const BadgesPage = () => {
               </Button>
             </Box>
 
-            {searchQuery && (
-              <Box sx={{ mt: 3 }}>
-                <Alert
-                  severity="info"
-                  sx={{
-                    bgcolor: '#0f01',
-                    color: '#0f0',
-                    border: '1px dashed #0f0',
-                    '& .MuiAlert-icon': {
-                      color: '#0f0',
-                    },
-                  }}
-                >
-                  Showing results for {searchQuery}
-                </Alert>
-
-                <Box sx={{ mt: 3 }}>
-                  <Typography
-                    variant="subtitle1"
-                    component="h4"
-                    gutterBottom
-                    sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-                  >
-                    BADGES_FOUND: {mockBadges.length}
-                  </Typography>
-
-                  <Grid2 container spacing={3}>
-                    {mockBadges.map(badge => (
-                      <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                        <Card
-                          sx={{
-                            bgcolor: '#1a1a1a',
-                            color: '#0f0',
-                            border: '1px solid #0f0',
-                            height: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
-                          }}
-                        >
-                          <Box sx={{ p: 2, textAlign: 'center' }}>
-                            <img
-                              src={badge.image}
-                              alt={badge.name}
-                              style={{
-                                width: 100,
-                                height: 100,
-                                borderRadius: '4px',
-                                margin: '0 auto',
-                              }}
-                            />
-                          </Box>
-                          <CardContent sx={{ flexGrow: 1 }}>
-                            <Typography
-                              variant="h6"
-                              component="h3"
-                              gutterBottom
-                              sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-                            >
-                              {badge.name}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                mb: 2,
-                                fontFamily: '"Share Tech Mono", monospace',
-                              }}
-                            >
-                              {badge.description}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                display: 'block',
-                                fontFamily: '"Share Tech Mono", monospace',
-                                color: '#0f08',
-                              }}
-                            >
-                              Issued by: {badge.issuer.substring(0, 8)}...
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                display: 'block',
-                                fontFamily: '"Share Tech Mono", monospace',
-                                color: '#0f08',
-                              }}
-                            >
-                              Date: {badge.created}
-                            </Typography>
-                          </CardContent>
-                          <CardActions sx={{ p: 2, borderTop: '1px dashed #0f0' }}>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              fullWidth
-                              sx={{
-                                color: '#0f0',
-                                borderColor: '#0f0',
-                                '&:hover': {
-                                  borderColor: '#0f0',
-                                  bgcolor: 'rgba(0,255,0,0.1)',
-                                },
-                              }}
-                            >
-                              View Details
-                            </Button>
-                          </CardActions>
-                        </Card>
-                      </Grid2>
-                    ))}
-                  </Grid2>
-                </Box>
-              </Box>
-            )}
+            <Box sx={{ mt: 4 }}>{renderSearchResults()}</Box>
           </Paper>
 
           {/* Tabs for different badge actions */}
@@ -943,6 +984,15 @@ const BadgesPage = () => {
         </Container>
       </Box>
     </>
+  );
+};
+
+// Wrapper component that provides the BadgeContext
+const BadgesPage = () => {
+  return (
+    <BadgeProvider>
+      <BadgesPageContent />
+    </BadgeProvider>
   );
 };
 
