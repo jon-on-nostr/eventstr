@@ -20,8 +20,8 @@ import {
 } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
 import NostrIcon from '@/components/ui/NostrIcon';
-import { EVENTSTR_PUBKEY } from '@/utils/constants';
-import { formatPubkey } from '@/utils/functions';
+import { EVENTSTR_PUBKEY } from '../../utils/constants';
+import { formatPubkey } from '../../utils/functions';
 
 const BuildingEventstr = () => {
   return (
