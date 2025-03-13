@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -12,7 +12,6 @@ import {
   Card,
   CardContent,
   CardActions,
-  Alert,
   Stepper,
   Step,
   StepLabel,
@@ -31,11 +30,9 @@ import {
 } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
 import LoginModal from '@/components/ui/LoginModal';
-import UserProfileButton from '@/components/ui/UserProfileButton';
 import NostrIcon from '@/components/ui/NostrIcon';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { AuthResult } from '@/services/auth';
 import { useNostr } from '@/hooks/useNostr';
 
 // Mock badge data for UI development
@@ -72,17 +69,8 @@ const BadgesPage = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const [searchNpub, setSearchNpub] = useState('');
 
-  const { isReady, connectionState } = useNostr();
-  const {
-    isAuthenticated,
-    currentUser,
-    isLoading: authLoading,
-    logout,
-    loginWithExtension,
-    loginWithPrivateKey,
-    error: authError,
-  } = useAuth();
-  const { currentProfile, isLoading: profileLoading, error: profileError } = useProfile();
+  const { isAuthenticated, currentUser, isLoading: authLoading, logout } = useAuth();
+  const { currentProfile, isLoading: profileLoading } = useProfile();
 
   // Add these states to your BadgesPageContent component
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -107,168 +95,9 @@ const BadgesPage = () => {
     setLoginModalOpen(false);
   };
 
-  const handleLoginWithExtension = async (): Promise<AuthResult> => {
-    try {
-      const result = await loginWithExtension();
-      if (result.success) {
-        handleCloseLoginModal();
-      }
-      return result;
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  };
-
-  const handleLoginWithPrivateKey = async (nsec: string): Promise<AuthResult> => {
-    const result = await loginWithPrivateKey(nsec);
-    if (result.success) {
-      handleCloseLoginModal();
-    }
-    return result;
-  };
-
   const handleLogout = () => {
     logout();
   };
-
-  // useEffect(() => {
-  //   // Load default badges when the component mounts
-  //   if (searchResults.badgesCreated.length === 0 && searchResults.badgesReceived.length === 0) {
-  //     performSearch('');
-  //   }
-  // }, []);
-
-  // const renderSearchResults = () => {
-  //   if (isSearching) {
-  //     return (
-  //       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-  //         <CircularProgress sx={{ color: '#0f0' }} />
-  //       </Box>
-  //     );
-  //   }
-
-  //   if (
-  //     searchError &&
-  //     searchResults.badgesCreated.length === 0 &&
-  //     searchResults.badgesReceived.length === 0
-  //   ) {
-  //     return (
-  //       <Alert
-  //         severity="error"
-  //         sx={{ mb: 3, bgcolor: '#300', color: '#f88', border: '1px solid #f88' }}
-  //       >
-  //         {searchError}
-  //       </Alert>
-  //     );
-  //   }
-
-  //   const hasUserProfile = !!searchResults.userProfile;
-  //   const hasResults =
-  //     searchResults.badgesCreated.length > 0 || searchResults.badgesReceived.length > 0;
-
-  //   if (!hasResults) {
-  //     return (
-  //       <Box sx={{ textAlign: 'center', py: 4 }}>
-  //         <NostrIcon sx={{ fontSize: 60, mb: 2 }} />
-  //         <Typography
-  //           variant="body2"
-  //           sx={{
-  //             fontFamily: '"Share Tech Mono", monospace',
-  //             opacity: 0.7,
-  //           }}
-  //         >
-  //           No badges found
-  //         </Typography>
-  //       </Box>
-  //     );
-  //   }
-
-  //   return (
-  //     <>
-  //       {hasUserProfile && searchResults && (
-  //         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-  //           {searchResults?.userProfile?.picture ? (
-  //             <Avatar
-  //               src={searchResults.userProfile.picture}
-  //               alt={
-  //                 searchResults.userProfile.displayName || searchResults.userProfile.name || 'User'
-  //               }
-  //               sx={{ width: 60, height: 60, border: '2px solid #0f0' }}
-  //             />
-  //           ) : (
-  //             <Avatar sx={{ width: 60, height: 60, bgcolor: '#0f0', color: '#000' }}>
-  //               {(
-  //                 searchResults?.userProfile?.displayName ||
-  //                 searchResults?.userProfile?.name ||
-  //                 'U'
-  //               ).charAt(0)}
-  //             </Avatar>
-  //           )}
-  //           <Box>
-  //             <Typography
-  //               variant="h6"
-  //               component="h3"
-  //               sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-  //             >
-  //               {searchResults?.userProfile?.displayName ||
-  //                 searchResults?.userProfile?.name ||
-  //                 'Unknown User'}
-  //             </Typography>
-  //             <Typography
-  //               variant="body2"
-  //               sx={{ fontFamily: '"Share Tech Mono", monospace', opacity: 0.7 }}
-  //             >
-  //               {searchQuery}
-  //             </Typography>
-  //           </Box>
-  //         </Box>
-  //       )}
-
-  //       {searchResults.badgesReceived.length > 0 && (
-  //         <>
-  //           <Typography
-  //             variant="subtitle1"
-  //             component="h4"
-  //             gutterBottom
-  //             sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 3, mb: 2 }}
-  //           >
-  //             BADGES_RECEIVED
-  //           </Typography>
-  //           <Grid2 container spacing={3}>
-  //             {searchResults.badgesReceived.map(badge => (
-  //               <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-  //                 <BadgeCard badge={badge} />
-  //               </Grid2>
-  //             ))}
-  //           </Grid2>
-  //         </>
-  //       )}
-
-  //       {searchResults.badgesCreated.length > 0 && (
-  //         <>
-  //           <Typography
-  //             variant="subtitle1"
-  //             component="h4"
-  //             gutterBottom
-  //             sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 4, mb: 2 }}
-  //           >
-  //             {hasUserProfile ? 'BADGES_CREATED' : 'BADGES'}
-  //           </Typography>
-  //           <Grid2 container spacing={3}>
-  //             {searchResults.badgesCreated.map(badge => (
-  //               <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-  //                 <BadgeCard badge={badge} />
-  //               </Grid2>
-  //             ))}
-  //           </Grid2>
-  //         </>
-  //       )}
-  //     </>
-  //   );
-  // };
 
   // Update the renderUserProfile function to use data from our hooks
   const renderUserProfile = () => {
@@ -728,8 +557,6 @@ const BadgesPage = () => {
                 Search
               </Button>
             </Box>
-
-            {/* <Box sx={{ mt: 4 }}>{renderSearchResults()}</Box> */}
           </Paper>
 
           {/* Tabs for different badge actions */}
