@@ -9,7 +9,6 @@ import {
   Tabs,
   Tab,
   Divider,
-  Chip,
   Card,
   CardContent,
   CardActions,
@@ -34,6 +33,7 @@ import BadgeCard from '@/components/ui/BadgeCard';
 import { BadgeProvider, useBadges } from '../../contexts/BadgeContext';
 import LoginModal from '@/components/ui/LoginModal';
 import UserProfileButton from '@/components/ui/UserProfileButton';
+import NostrIcon from '@/components/ui/NostrIcon';
 
 // Mock badge data for UI development
 const mockBadges = [
@@ -142,7 +142,7 @@ const BadgesPageContent = () => {
     if (!hasResults) {
       return (
         <Box sx={{ textAlign: 'center', py: 4 }}>
-          <BadgeIcon sx={{ fontSize: 60, opacity: 0.5, mb: 2 }} />
+          <NostrIcon sx={{ fontSize: 60, mb: 2 }} />
           <Typography
             variant="body2"
             sx={{
@@ -947,7 +947,7 @@ const BadgesPageContent = () => {
                     </>
                   ) : (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <BadgeIcon sx={{ fontSize: 60, opacity: 0.5, mb: 2 }} />
+                      <NostrIcon sx={{ fontSize: 60, mb: 2 }} />
                       <Typography
                         variant="body2"
                         sx={{

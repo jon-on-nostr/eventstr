@@ -16,48 +16,11 @@ import {
   Security as SecurityIcon,
   Key as KeyIcon,
   Code as CodeIcon,
+  CurrencyBitcoin,
+  ElectricBolt,
 } from '@mui/icons-material';
 import Navbar from '../../components/Navbar';
-
-// Custom Nostr icon component
-const NostrIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" />
-    <path d="M8 9H10V15H8V9ZM14 9H16V15H14V9ZM7 12H17V14H7V12Z" />
-  </svg>
-);
-
-// Custom Bitcoin icon component
-const BitcoinIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M17.06 11.57C17.65 10.88 17.96 10.04 17.86 9.17C17.74 8 17.18 7.1 16.33 6.67C15.79 6.4 15.19 6.3 14.59 6.3H14.56V4.77H13.08V6.3H11.05V4.77H9.56V6.3H6.81V7.95H8.47C8.99 7.95 9.32 8.16 9.32 8.71V15.37C9.32 15.97 8.99 16.15 8.47 16.15H6.81V17.77H9.56V19.35H11.05V17.77H13.08V19.35H14.56V17.77C15.34 17.77 16.1 17.67 16.78 17.27C17.86 16.68 18.53 15.57 18.5 14.25C18.5 13.03 17.96 11.97 17.06 11.57ZM11.05 7.95H14.44C15.09 7.95 15.57 8.53 15.57 9.17C15.57 9.8 15.09 10.38 14.44 10.38H11.05V7.95ZM15.22 15.93C14.55 15.93 11.05 15.93 11.05 15.93V13.08H15.22C16.04 13.08 16.71 13.7 16.71 14.5C16.71 15.3 16.04 15.93 15.22 15.93Z" />
-  </svg>
-);
-
-// Custom Lightning icon component
-const LightningIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M11 15H6L13 1V9H18L11 23V15Z" />
-  </svg>
-);
+import NostrIcon from '@/components/ui/NostrIcon';
 
 const WhyNostr = () => {
   return (
@@ -131,7 +94,7 @@ const WhyNostr = () => {
           <Box sx={{ mb: 8 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <Box sx={{ mr: 2, display: 'flex' }}>
-                <NostrIcon />
+                <NostrIcon sx={{ fontSize: 60, mb: 2 }} />
               </Box>
               <Typography
                 variant="h4"
@@ -291,7 +254,7 @@ const WhyNostr = () => {
           <Box sx={{ mb: 8 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <Box sx={{ mr: 2, display: 'flex' }}>
-                <BitcoinIcon />
+                <CurrencyBitcoin />
               </Box>
               <Typography
                 variant="h4"
@@ -453,7 +416,7 @@ const WhyNostr = () => {
           <Box sx={{ mb: 8 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <Box sx={{ mr: 2, display: 'flex' }}>
-                <LightningIcon />
+                <ElectricBolt />
               </Box>
               <Typography
                 variant="h4"
