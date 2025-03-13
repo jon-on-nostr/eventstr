@@ -116,7 +116,6 @@ export const BadgeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       try {
         // Connect to NDK
         await ndkService.connect();
-        console.log('should be connected to ndk service');
         // Load default badges when the component mounts
         await loadDefaultBadges();
       } catch (error) {
@@ -169,7 +168,6 @@ export const BadgeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   ): Promise<{ success?: boolean; error?: string }> => {
     try {
       const result = await nsecLogin(nsecValue);
-      console.log('What result of the login', result);
       if (result.error) {
         return { error: result.error };
       }

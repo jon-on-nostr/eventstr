@@ -55,7 +55,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
     setLoading(true);
     try {
       const result = await loginWithNsec(nsec);
-      console.log('what is the result: ', result);
+
       if (result?.success) {
         onClose();
         // Clear nsec from state for security

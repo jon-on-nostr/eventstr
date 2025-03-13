@@ -136,9 +136,7 @@ export const getUserProfile = async (
 }> => {
   try {
     const ndk = await ensureNDKConnected();
-    console.log('what is ndk here: ', ndk);
     const user = ndk.getUser({ pubkey });
-    console.log('what be user: ', user);
     await user.fetchProfile();
 
     return {
@@ -232,7 +230,7 @@ export const getAllBadges = async ({
     const ndk = await ensureNDKConnected();
 
     // Enforce reasonable limits
-    const safeLimit = Math.min(Math.max(1, limit), 100);
+    const safeLimit = Math.min(Math.max(1, limit), 16);
 
     console.log(`Fetching badges with limit: ${safeLimit}`);
 
