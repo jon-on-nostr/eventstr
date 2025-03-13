@@ -217,8 +217,8 @@ class ProfileService {
   /**
    * Parses profile content into ProfileData
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseProfileContent(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     content: string | number | Record<string, any> | undefined,
     pubkey: string
   ): ProfileData {
