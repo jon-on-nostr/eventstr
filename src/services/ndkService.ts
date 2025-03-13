@@ -93,6 +93,8 @@ class NDKService {
   }
 }
 
+export { NDKService };
+
 // Export a singleton instance
 export const ndkService = NDKService.getInstance();
 
