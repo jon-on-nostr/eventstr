@@ -18,8 +18,10 @@ import {
   Construction as ConstructionIcon,
   ConnectWithoutContact as ConnectIcon,
 } from '@mui/icons-material';
-import Navbar from '../../components/Navbar';
+import Navbar from '@/components/Navbar';
 import NostrIcon from '@/components/ui/NostrIcon';
+import { EVENTSTR_PUBKEY } from '@/utils/constants';
+import { formatPubkey } from '@/utils/functions';
 
 const BuildingEventstr = () => {
   return (
@@ -622,9 +624,10 @@ const BuildingEventstr = () => {
                   variant="body2"
                   sx={{
                     fontFamily: '"Share Tech Mono", monospace',
+                    opacity: 0.7,
                   }}
                 >
-                  npub1ev...xxx
+                  {formatPubkey(EVENTSTR_PUBKEY)}
                 </Typography>
               </Box>
 
