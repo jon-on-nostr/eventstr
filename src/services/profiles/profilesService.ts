@@ -1,4 +1,4 @@
-import { NDKEvent, NDKFilter, NDKKind, NDKUser } from '@nostr-dev-kit/ndk';
+import { NDKEvent, NDKFilter, NDKKind } from '@nostr-dev-kit/ndk';
 import { nip19 } from 'nostr-tools';
 import { getNDK, ensureNDKConnected } from '../ndk';
 import AuthService, { NostrUser } from '../auth';
@@ -14,6 +14,7 @@ export interface ProfileData {
   website?: string;
   nip05?: string;
   lud16?: string; // Lightning address
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any; // Allow for additional fields
 }
 
@@ -94,7 +95,7 @@ class ProfileService {
         const decoded = nip19.decode(identifier);
         pubkey = decoded.data as string;
       } catch (error) {
-        console.error('Invalid npub:', identifier);
+        console.error('Invalid npub:', identifier, error);
         return null;
       }
     } else {
@@ -149,7 +150,7 @@ class ProfileService {
           const decoded = nip19.decode(identifier);
           pubkey = decoded.data as string;
         } catch (error) {
-          console.error('Invalid npub:', identifier);
+          console.error('Invalid npub:', identifier, error);
           continue;
         }
       } else {
@@ -216,6 +217,7 @@ class ProfileService {
   /**
    * Parses profile content into ProfileData
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseProfileContent(
     content: string | number | Record<string, any> | undefined,
     pubkey: string
@@ -348,6 +350,7 @@ class ProfileService {
       }
 
       // Convert from ProfileData format to raw profile format if needed
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updateData: Record<string, any> = {};
 
       // Map display_name to displayName for consistency

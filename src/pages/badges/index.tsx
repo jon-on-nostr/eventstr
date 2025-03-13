@@ -33,7 +33,6 @@ import LoginModal from '@/components/ui/LoginModal';
 import NostrIcon from '@/components/ui/NostrIcon';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { useNostr } from '@/hooks/useNostr';
 
 // Mock badge data for UI development
 const mockBadges = [

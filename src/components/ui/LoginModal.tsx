@@ -223,7 +223,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
               }}
             >
               WARNING: Your nsec is your private key. Never share it with anyone. This app stores it
-              only in your browser's memory.
+              only in your browser memory.
             </Typography>
           </Box>
         )}

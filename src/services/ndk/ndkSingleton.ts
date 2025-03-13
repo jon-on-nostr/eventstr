@@ -1,4 +1,4 @@
-import NDK, { NDKEvent, NDKRelay, NDKRelayStatus } from '@nostr-dev-kit/ndk';
+import NDK, { NDKRelay, NDKRelayStatus } from '@nostr-dev-kit/ndk';
 
 // Connection states
 export enum ConnectionState {

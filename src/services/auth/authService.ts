@@ -1,6 +1,6 @@
-import { NDKNip07Signer, NDKPrivateKeySigner, NDKUser, NDKKind } from '@nostr-dev-kit/ndk';
+import { NDKNip07Signer, NDKPrivateKeySigner, NDKUser } from '@nostr-dev-kit/ndk';
 import { nip19 } from 'nostr-tools';
-import { getNDK, getNDKInstance, ensureNDKConnected } from '../ndk';
+import { getNDK, ensureNDKConnected } from '../ndk';
 
 /**
  * Represents a Nostr user with profile information
@@ -14,6 +14,7 @@ export interface NostrUser {
     picture?: string;
     about?: string;
     nip05?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
 }
@@ -206,10 +207,10 @@ class AuthService {
         privateKey = Array.from(decoded.data)
           .map(b => b.toString(16).padStart(2, '0'))
           .join('');
-      } catch (error) {
+      } catch (e) {
         return {
           success: false,
-          error: 'Could not decode nsec key',
+          error: `Could not decode nsec key: ${e}`,
         };
       }
 

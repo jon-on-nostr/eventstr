@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
 import NDK, { NDKEvent } from '@nostr-dev-kit/ndk';
-import { getNDK, ensureNDKConnected, ConnectionState } from '../services/ndk';
+import { getNDK, ensureNDKConnected } from '../services/ndk';
 
 /**
  * Hook for interacting with the NDK instance
  */
 export function useNostr() {
-  const [connectionState, setConnectionState] = useState<ConnectionState>(
-    ConnectionState.DISCONNECTED
-  );
   const [ndk, setNdk] = useState<NDK | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -63,7 +60,6 @@ export function useNostr() {
   return {
     ndk,
     isReady,
-    connectionState,
     error,
     publishEvent,
   };
