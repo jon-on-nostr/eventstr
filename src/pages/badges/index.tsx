@@ -27,15 +27,16 @@ import {
   Login as LoginIcon,
   AssignmentInd as AssignIcon,
   CheckCircle as CheckCircleIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
-import BadgeCard from '@/components/ui/BadgeCard';
 import LoginModal from '@/components/ui/LoginModal';
 import UserProfileButton from '@/components/ui/UserProfileButton';
 import NostrIcon from '@/components/ui/NostrIcon';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { AuthResult } from '@/services/auth';
+import { useNostr } from '@/hooks/useNostr';
 
 // Mock badge data for UI development
 const mockBadges = [
@@ -70,17 +71,8 @@ const BadgesPage = () => {
   // State for the current tab
   const [currentTab, setCurrentTab] = useState(0);
   const [searchNpub, setSearchNpub] = useState('');
-  // const {
-  //   searchQuery,
-  //   setSearchQuery,
-  //   searchResults,
-  //   isSearching,
-  //   searchError,
-  //   performSearch,
-  //   userBadges,
-  //   isLoadingUserBadges,
-  // } = useBadges();
 
+  const { isReady, connectionState } = useNostr();
   const {
     isAuthenticated,
     currentUser,
@@ -277,6 +269,92 @@ const BadgesPage = () => {
   //     </>
   //   );
   // };
+
+  // Update the renderUserProfile function to use data from our hooks
+  const renderUserProfile = () => {
+    if (authLoading || profileLoading) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <CircularProgress size={24} sx={{ color: '#0f0', mr: 2 }} />
+          <Typography variant="body2" sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
+            Loading profile...
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (isAuthenticated && currentUser && currentProfile) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {currentProfile.picture ? (
+            <Avatar
+              src={currentProfile.picture}
+              alt={currentProfile.displayName || currentProfile.name || 'User'}
+              sx={{ width: 40, height: 40, border: '2px solid #0f0' }}
+            />
+          ) : (
+            <Avatar sx={{ width: 40, height: 40, bgcolor: '#0f0', color: '#000' }}>
+              {(currentProfile.displayName || currentProfile.name || 'U')[0].toUpperCase()}
+            </Avatar>
+          )}
+
+          <Box>
+            <Typography variant="subtitle1" sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
+              {currentProfile.displayName || currentProfile.name || 'Anonymous User'}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontFamily: '"Share Tech Mono", monospace',
+                display: 'block',
+                fontSize: '0.7rem',
+                opacity: 0.7,
+              }}
+            >
+              {currentProfile.npub.substring(0, 8)}...
+              {currentProfile.npub.substring(currentProfile.npub.length - 4)}
+            </Typography>
+          </Box>
+
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<LogoutIcon />}
+            onClick={handleLogout}
+            sx={{
+              ml: 2,
+              color: '#0f0',
+              borderColor: '#0f0',
+              '&:hover': {
+                borderColor: '#0f0',
+                bgcolor: 'rgba(0,255,0,0.1)',
+              },
+            }}
+          >
+            Logout
+          </Button>
+        </Box>
+      );
+    }
+
+    return (
+      <Button
+        variant="outlined"
+        startIcon={<LoginIcon />}
+        onClick={handleOpenLoginModal}
+        sx={{
+          color: '#0f0',
+          borderColor: '#0f0',
+          '&:hover': {
+            borderColor: '#0f0',
+            bgcolor: 'rgba(0,255,0,0.1)',
+          },
+        }}
+      >
+        Login
+      </Button>
+    );
+  };
 
   return (
     <>
@@ -581,47 +659,7 @@ const BadgesPage = () => {
               mb: 4,
             }}
           >
-            {Boolean(currentUser) ? (
-              <UserProfileButton />
-            ) : (
-              <Box>
-                <Typography
-                  variant="h6"
-                  component="h3"
-                  gutterBottom
-                  sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-                >
-                  SIGN_IN_TO_CONTINUE
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    mb: 3,
-                    fontFamily: '"Share Tech Mono", monospace',
-                  }}
-                >
-                  Sign in to create, assign, or accept badges. You can search for badges without
-                  signing in.
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<LoginIcon />}
-                    onClick={handleOpenLoginModal}
-                    sx={{
-                      color: '#0f0',
-                      borderColor: '#0f0',
-                      '&:hover': {
-                        borderColor: '#0f0',
-                        bgcolor: 'rgba(0,255,0,0.1)',
-                      },
-                    }}
-                  >
-                    SIGN_IN
-                  </Button>
-                </Box>
-              </Box>
-            )}
+            {renderUserProfile()}
           </Paper>
 
           {/* Search Section */}
@@ -996,14 +1034,7 @@ const BadgesPage = () => {
       </Box>
 
       {/* Login Modal */}
-      <LoginModal
-        open={loginModalOpen}
-        onClose={handleCloseLoginModal}
-        onLoginWithExtension={handleLoginWithExtension}
-        onLoginWithPrivateKey={handleLoginWithPrivateKey}
-        error={authError}
-        isLoading={authLoading}
-      />
+      <LoginModal open={loginModalOpen} onClose={handleCloseLoginModal} />
     </>
   );
 };
