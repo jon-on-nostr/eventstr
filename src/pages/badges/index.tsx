@@ -34,6 +34,10 @@ import { BadgeProvider, useBadges } from '../../contexts/BadgeContext';
 import LoginModal from '@/components/ui/LoginModal';
 import UserProfileButton from '@/components/ui/UserProfileButton';
 import NostrIcon from '@/components/ui/NostrIcon';
+import { useNostr } from '@/hooks/useNostr';
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { AuthResult } from '@/services/auth';
 
 // Mock badge data for UI development
 const mockBadges = [
@@ -67,19 +71,28 @@ const mockBadges = [
 const BadgesPageContent = () => {
   // State for the current tab
   const [currentTab, setCurrentTab] = useState(0);
+  const [searchNpub, setSearchNpub] = useState('');
+  // const {
+  //   searchQuery,
+  //   setSearchQuery,
+  //   searchResults,
+  //   isSearching,
+  //   searchError,
+  //   performSearch,
+  //   userBadges,
+  //   isLoadingUserBadges,
+  // } = useBadges();
+
   const {
-    isLoggedIn,
+    isAuthenticated,
     currentUser,
-    login,
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    isSearching,
-    searchError,
-    performSearch,
-    userBadges,
-    isLoadingUserBadges,
-  } = useBadges();
+    isLoading: authLoading,
+    logout,
+    loginWithExtension,
+    loginWithPrivateKey,
+    error: authError,
+  } = useAuth();
+  const { currentProfile, isLoading: profileLoading, error: profileError } = useProfile();
 
   // Add these states to your BadgesPageContent component
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -92,7 +105,7 @@ const BadgesPageContent = () => {
   // Handle search form submission
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    performSearch(searchQuery);
+    // performSearch(searchQuery);
   };
 
   // Add these handlers
@@ -104,141 +117,168 @@ const BadgesPageContent = () => {
     setLoginModalOpen(false);
   };
 
-  useEffect(() => {
-    // Load default badges when the component mounts
-    if (searchResults.badgesCreated.length === 0 && searchResults.badgesReceived.length === 0) {
-      performSearch('');
+  const handleLoginWithExtension = async (): Promise<AuthResult> => {
+    try {
+      const result = await loginWithExtension();
+      if (result.success) {
+        handleCloseLoginModal();
+      }
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
     }
-  }, []);
-
-  const renderSearchResults = () => {
-    if (isSearching) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress sx={{ color: '#0f0' }} />
-        </Box>
-      );
-    }
-
-    if (
-      searchError &&
-      searchResults.badgesCreated.length === 0 &&
-      searchResults.badgesReceived.length === 0
-    ) {
-      return (
-        <Alert
-          severity="error"
-          sx={{ mb: 3, bgcolor: '#300', color: '#f88', border: '1px solid #f88' }}
-        >
-          {searchError}
-        </Alert>
-      );
-    }
-
-    const hasUserProfile = !!searchResults.userProfile;
-    const hasResults =
-      searchResults.badgesCreated.length > 0 || searchResults.badgesReceived.length > 0;
-
-    if (!hasResults) {
-      return (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <NostrIcon sx={{ fontSize: 60, mb: 2 }} />
-          <Typography
-            variant="body2"
-            sx={{
-              fontFamily: '"Share Tech Mono", monospace',
-              opacity: 0.7,
-            }}
-          >
-            No badges found
-          </Typography>
-        </Box>
-      );
-    }
-
-    return (
-      <>
-        {hasUserProfile && searchResults && (
-          <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-            {searchResults?.userProfile?.picture ? (
-              <Avatar
-                src={searchResults.userProfile.picture}
-                alt={
-                  searchResults.userProfile.displayName || searchResults.userProfile.name || 'User'
-                }
-                sx={{ width: 60, height: 60, border: '2px solid #0f0' }}
-              />
-            ) : (
-              <Avatar sx={{ width: 60, height: 60, bgcolor: '#0f0', color: '#000' }}>
-                {(
-                  searchResults?.userProfile?.displayName ||
-                  searchResults?.userProfile?.name ||
-                  'U'
-                ).charAt(0)}
-              </Avatar>
-            )}
-            <Box>
-              <Typography
-                variant="h6"
-                component="h3"
-                sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-              >
-                {searchResults?.userProfile?.displayName ||
-                  searchResults?.userProfile?.name ||
-                  'Unknown User'}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ fontFamily: '"Share Tech Mono", monospace', opacity: 0.7 }}
-              >
-                {searchQuery}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-
-        {searchResults.badgesReceived.length > 0 && (
-          <>
-            <Typography
-              variant="subtitle1"
-              component="h4"
-              gutterBottom
-              sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 3, mb: 2 }}
-            >
-              BADGES_RECEIVED
-            </Typography>
-            <Grid2 container spacing={3}>
-              {searchResults.badgesReceived.map(badge => (
-                <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-                  <BadgeCard badge={badge} />
-                </Grid2>
-              ))}
-            </Grid2>
-          </>
-        )}
-
-        {searchResults.badgesCreated.length > 0 && (
-          <>
-            <Typography
-              variant="subtitle1"
-              component="h4"
-              gutterBottom
-              sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 4, mb: 2 }}
-            >
-              {hasUserProfile ? 'BADGES_CREATED' : 'BADGES'}
-            </Typography>
-            <Grid2 container spacing={3}>
-              {searchResults.badgesCreated.map(badge => (
-                <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-                  <BadgeCard badge={badge} />
-                </Grid2>
-              ))}
-            </Grid2>
-          </>
-        )}
-      </>
-    );
   };
+
+  const handleLoginWithPrivateKey = async (nsec: string): Promise<AuthResult> => {
+    const result = await loginWithPrivateKey(nsec);
+    if (result.success) {
+      handleCloseLoginModal();
+    }
+    return result;
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  // useEffect(() => {
+  //   // Load default badges when the component mounts
+  //   if (searchResults.badgesCreated.length === 0 && searchResults.badgesReceived.length === 0) {
+  //     performSearch('');
+  //   }
+  // }, []);
+
+  // const renderSearchResults = () => {
+  //   if (isSearching) {
+  //     return (
+  //       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+  //         <CircularProgress sx={{ color: '#0f0' }} />
+  //       </Box>
+  //     );
+  //   }
+
+  //   if (
+  //     searchError &&
+  //     searchResults.badgesCreated.length === 0 &&
+  //     searchResults.badgesReceived.length === 0
+  //   ) {
+  //     return (
+  //       <Alert
+  //         severity="error"
+  //         sx={{ mb: 3, bgcolor: '#300', color: '#f88', border: '1px solid #f88' }}
+  //       >
+  //         {searchError}
+  //       </Alert>
+  //     );
+  //   }
+
+  //   const hasUserProfile = !!searchResults.userProfile;
+  //   const hasResults =
+  //     searchResults.badgesCreated.length > 0 || searchResults.badgesReceived.length > 0;
+
+  //   if (!hasResults) {
+  //     return (
+  //       <Box sx={{ textAlign: 'center', py: 4 }}>
+  //         <NostrIcon sx={{ fontSize: 60, mb: 2 }} />
+  //         <Typography
+  //           variant="body2"
+  //           sx={{
+  //             fontFamily: '"Share Tech Mono", monospace',
+  //             opacity: 0.7,
+  //           }}
+  //         >
+  //           No badges found
+  //         </Typography>
+  //       </Box>
+  //     );
+  //   }
+
+  //   return (
+  //     <>
+  //       {hasUserProfile && searchResults && (
+  //         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+  //           {searchResults?.userProfile?.picture ? (
+  //             <Avatar
+  //               src={searchResults.userProfile.picture}
+  //               alt={
+  //                 searchResults.userProfile.displayName || searchResults.userProfile.name || 'User'
+  //               }
+  //               sx={{ width: 60, height: 60, border: '2px solid #0f0' }}
+  //             />
+  //           ) : (
+  //             <Avatar sx={{ width: 60, height: 60, bgcolor: '#0f0', color: '#000' }}>
+  //               {(
+  //                 searchResults?.userProfile?.displayName ||
+  //                 searchResults?.userProfile?.name ||
+  //                 'U'
+  //               ).charAt(0)}
+  //             </Avatar>
+  //           )}
+  //           <Box>
+  //             <Typography
+  //               variant="h6"
+  //               component="h3"
+  //               sx={{ fontFamily: '"Share Tech Mono", monospace' }}
+  //             >
+  //               {searchResults?.userProfile?.displayName ||
+  //                 searchResults?.userProfile?.name ||
+  //                 'Unknown User'}
+  //             </Typography>
+  //             <Typography
+  //               variant="body2"
+  //               sx={{ fontFamily: '"Share Tech Mono", monospace', opacity: 0.7 }}
+  //             >
+  //               {searchQuery}
+  //             </Typography>
+  //           </Box>
+  //         </Box>
+  //       )}
+
+  //       {searchResults.badgesReceived.length > 0 && (
+  //         <>
+  //           <Typography
+  //             variant="subtitle1"
+  //             component="h4"
+  //             gutterBottom
+  //             sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 3, mb: 2 }}
+  //           >
+  //             BADGES_RECEIVED
+  //           </Typography>
+  //           <Grid2 container spacing={3}>
+  //             {searchResults.badgesReceived.map(badge => (
+  //               <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+  //                 <BadgeCard badge={badge} />
+  //               </Grid2>
+  //             ))}
+  //           </Grid2>
+  //         </>
+  //       )}
+
+  //       {searchResults.badgesCreated.length > 0 && (
+  //         <>
+  //           <Typography
+  //             variant="subtitle1"
+  //             component="h4"
+  //             gutterBottom
+  //             sx={{ fontFamily: '"Share Tech Mono", monospace', mt: 4, mb: 2 }}
+  //           >
+  //             {hasUserProfile ? 'BADGES_CREATED' : 'BADGES'}
+  //           </Typography>
+  //           <Grid2 container spacing={3}>
+  //             {searchResults.badgesCreated.map(badge => (
+  //               <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+  //                 <BadgeCard badge={badge} />
+  //               </Grid2>
+  //             ))}
+  //           </Grid2>
+  //         </>
+  //       )}
+  //     </>
+  //   );
+  // };
 
   return (
     <>
@@ -543,7 +583,7 @@ const BadgesPageContent = () => {
               mb: 4,
             }}
           >
-            {isLoggedIn ? (
+            {Boolean(currentUser) ? (
               <UserProfileButton />
             ) : (
               <Box>
@@ -620,23 +660,8 @@ const BadgesPageContent = () => {
                 fullWidth
                 placeholder="Enter npub..."
                 variant="outlined"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                InputProps={{
-                  sx: {
-                    color: '#0f0',
-                    fontFamily: '"Share Tech Mono", monospace',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#0f0',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#0f0',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#0f0',
-                    },
-                  },
-                }}
+                value={searchNpub}
+                onChange={e => setSearchNpub(e.target.value)}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '& fieldset': {
@@ -668,7 +693,7 @@ const BadgesPageContent = () => {
               </Button>
             </Box>
 
-            <Box sx={{ mt: 4 }}>{renderSearchResults()}</Box>
+            {/* <Box sx={{ mt: 4 }}>{renderSearchResults()}</Box> */}
           </Paper>
 
           {/* Tabs for different badge actions */}
@@ -704,20 +729,25 @@ const BadgesPageContent = () => {
                 label="MY BADGES"
                 icon={<BadgeIcon />}
                 iconPosition="start"
-                disabled={!isLoggedIn}
+                disabled={!Boolean(currentUser)}
               />
-              <Tab label="CREATE" icon={<AddIcon />} iconPosition="start" disabled={!isLoggedIn} />
+              <Tab
+                label="CREATE"
+                icon={<AddIcon />}
+                iconPosition="start"
+                disabled={!Boolean(currentUser)}
+              />
               <Tab
                 label="ASSIGN"
                 icon={<AssignIcon />}
                 iconPosition="start"
-                disabled={!isLoggedIn}
+                disabled={!Boolean(currentUser)}
               />
               <Tab
                 label="ACCEPT"
                 icon={<CheckCircleIcon />}
                 iconPosition="start"
-                disabled={!isLoggedIn}
+                disabled={!Boolean(currentUser)}
               />
             </Tabs>
 
@@ -968,7 +998,14 @@ const BadgesPageContent = () => {
       </Box>
 
       {/* Login Modal */}
-      <LoginModal open={loginModalOpen} onClose={handleCloseLoginModal} />
+      <LoginModal
+        open={loginModalOpen}
+        onClose={handleCloseLoginModal}
+        onLoginWithExtension={handleLoginWithExtension}
+        onLoginWithPrivateKey={handleLoginWithPrivateKey}
+        error={authError}
+        isLoading={authLoading}
+      />
     </>
   );
 };
