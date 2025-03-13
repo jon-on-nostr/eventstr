@@ -1,0 +1,2 @@
+export const MY_NOSTR_PUBKEY = 'npub1xhdzye3dmy9u0zk5yetaue4r9lzxduvcp4skd50utjjax908p9cqwuxaaq';
+export const EVENTSTR_PUBKEY = 'npub1c9zjyg50gvp6q3942zel0z0lnfmfw355zdcqw5kjrfekx5gh74dqhl45uf';
