@@ -82,7 +82,7 @@ export default class BadgesService {
             const { data } = nip19.decode(pubkey);
             return data as string;
           } catch (e) {
-            throw new Error(`Invalid npub: ${pubkey}`);
+            throw new Error(`Invalid npub: ${pubkey} ${e}`);
           }
         }
         return pubkey;
@@ -94,13 +94,6 @@ export default class BadgesService {
 
       // Generate a unique identifier for this award
       const uniqueId = crypto.randomUUID();
-
-      // Set the badge award content
-      const badgeAwardContent: BadgeAwardEvent = {
-        d: uniqueId,
-        a: badgeDefId,
-        p: hexPubkeys,
-      };
 
       event.content = '';
       event.tags = [['d', uniqueId], ['a', badgeDefId], ...hexPubkeys.map(pubkey => ['p', pubkey])];
@@ -461,6 +454,7 @@ export default class BadgesService {
       }
 
       // Convert the map to an array
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for (const [_, { badge, status }] of badgeMap.entries()) {
         badges.push({ ...badge, status });
       }

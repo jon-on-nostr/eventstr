@@ -156,6 +156,7 @@ const BadgeCreationForm: React.FC<BadgeCreationFormProps> = ({ ndk, onSuccess })
         new URL(formState.image); // Check if URL is valid
       } catch (e) {
         newErrors.image = 'Please enter a valid URL';
+        console.error(e);
         isValid = false;
       }
     }
@@ -165,6 +166,7 @@ const BadgeCreationForm: React.FC<BadgeCreationFormProps> = ({ ndk, onSuccess })
       try {
         new URL(formState.thumbnail); // Check if URL is valid
       } catch (e) {
+        console.error(e);
         newErrors.thumbnail = 'Please enter a valid URL or leave empty';
         isValid = false;
       }

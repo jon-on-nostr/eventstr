@@ -469,8 +469,8 @@ const BadgeSearch: React.FC<BadgeSearchProps> = ({ ndk }) => {
                 NO_BADGES_FOUND
               </Typography>
               <Typography sx={{ color: '#aaa' }}>
-                This user hasn't received any badges yet or they may exist on relays that aren't
-                currently connected.
+                This user hasn&apos;t received any badges yet or they may exist on relays that
+                aren&apos;t currently connected.
               </Typography>
             </Box>
           )}

@@ -593,8 +593,8 @@ const AcceptBadgeSection: React.FC<AcceptBadgeSectionProps> = ({ ndk }) => {
               </DialogTitle>
               <DialogContent sx={{ pt: 3 }}>
                 <Typography variant="body1" sx={{ mb: 2 }}>
-                  Are you sure you want to {confirmDialog.action} the badge "
-                  {confirmDialog.badge.name}"?
+                  Are you sure you want to {confirmDialog.action} the badge &quot;
+                  {confirmDialog.badge.name}&quot;?
                 </Typography>
 
                 {confirmDialog.action === 'accept' ? (

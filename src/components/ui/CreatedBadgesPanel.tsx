@@ -10,7 +10,6 @@ import {
   Alert,
   Paper,
   Button,
-  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import { AddCircleOutline as AddCircleOutlineIcon } from '@mui/icons-material';
@@ -31,7 +30,6 @@ interface CreatedBadgesPanelProps {
  */
 const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [modalState, setModalState] = useState({
     open: false,
     selectedBadge: null as BadgeDefinition | null,
@@ -214,7 +212,7 @@ const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
               NO_BADGES_CREATED
             </Typography>
             <Typography sx={{ color: '#aaa', mb: 3 }}>
-              You haven't created any badges yet. Create your first badge to get started.
+              You haven&apos;t created any badges yet. Create your first badge to get started.
             </Typography>
             <Button
               variant="outlined"
