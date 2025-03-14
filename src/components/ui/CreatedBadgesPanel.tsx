@@ -16,6 +16,7 @@ import {
 import { AddCircleOutline as AddCircleOutlineIcon } from '@mui/icons-material';
 import { BadgesService, BadgeDefinition } from '@/services/badges';
 import NDK from '@nostr-dev-kit/ndk';
+import BadgeInfoModal from '@/components/ui/BadgeInfoModal';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Types for component props
@@ -31,6 +32,10 @@ interface CreatedBadgesPanelProps {
 const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [modalState, setModalState] = useState({
+    open: false,
+    selectedBadge: null as BadgeDefinition | null,
+  });
 
   // Badge service
   const badgesService = useMemo(() => new BadgesService(ndk), [ndk]);
@@ -79,6 +84,20 @@ const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src =
       'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23333" width="100" height="100"/><text fill="%23FF0000" font-size="14" font-family="sans-serif" x="10" y="50">Image Error</text></svg>';
+  };
+
+  const handleOpenModal = (badge: BadgeDefinition) => {
+    setModalState({
+      open: true,
+      selectedBadge: badge,
+    });
+  };
+
+  const handleCloseModal = () => {
+    setModalState({
+      open: false,
+      selectedBadge: null,
+    });
   };
 
   return (
@@ -139,8 +158,10 @@ const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
             {createdBadges.map(badge => (
               <Grid2 size={{ xs: 12, sm: 6, md: 4 }} key={badge.id}>
                 <Card
+                  onClick={() => handleOpenModal(badge)}
                   sx={{
                     height: '100%',
+                    cursor: 'pointer',
                     bgcolor: '#222',
                     color: '#eee',
                     border: '1px solid #0f0',
@@ -215,6 +236,12 @@ const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
           </Box>
         )}
       </Paper>
+      <BadgeInfoModal
+        ndk={ndk}
+        badge={modalState.selectedBadge}
+        isOpen={modalState.open}
+        onClose={handleCloseModal}
+      />
     </ErrorBoundary>
   );
 };
