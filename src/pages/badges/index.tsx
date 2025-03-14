@@ -4,7 +4,6 @@ import {
   Container,
   Typography,
   Button,
-  TextField,
   Paper,
   Tabs,
   Tab,
@@ -20,7 +19,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import {
-  Search as SearchIcon,
   Badge as BadgeIcon,
   Add as AddIcon,
   Login as LoginIcon,
@@ -31,6 +29,7 @@ import {
 import Navbar from '@/components/Navbar';
 import LoginModal from '@/components/ui/LoginModal';
 import NostrIcon from '@/components/ui/NostrIcon';
+import BadgeCreationForm from '@/components/ui/BadgeCreationForm';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import BadgeSearch from '@/components/ui/BadgeSearch';
@@ -825,6 +824,7 @@ const BadgesPage = () => {
                   )}
                 </Box>
               )}
+              {currentTab === 1 && <BadgeCreationForm ndk={ndk} />}
             </Box>
           </Paper>
         </Container>
