@@ -34,6 +34,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import BadgeSearch from '@/components/ui/BadgeSearch';
 import { useNostr } from '@/hooks/useNostr';
+import { useBadges } from '@/hooks/useBadges';
 
 // Mock badge data for UI development
 const mockBadges = [
@@ -72,6 +73,7 @@ const BadgesPage = () => {
 
   const { isAuthenticated, currentUser, isLoading: authLoading, logout } = useAuth();
   const { currentProfile, isLoading: profileLoading } = useProfile();
+  const { badges, isLoading: badgesLoading, error: badgesError } = useBadges();
 
   // Add these states to your BadgesPageContent component
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -607,7 +609,20 @@ const BadgesPage = () => {
                     View all badges you&apos;ve created and received.
                   </Typography>
 
-                  {mockBadges.length > 0 ? (
+                  {badgesLoading ? (
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                      <CircularProgress size={40} sx={{ color: '#0f0', mb: 2 }} />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontFamily: '"Share Tech Mono", monospace',
+                          opacity: 0.7,
+                        }}
+                      >
+                        Loading your badges...
+                      </Typography>
+                    </Box>
+                  ) : badges && badges.length > 0 ? (
                     <>
                       <Typography
                         variant="subtitle2"
@@ -623,7 +638,7 @@ const BadgesPage = () => {
                       </Typography>
 
                       <Grid2 container spacing={3}>
-                        {mockBadges.map(badge => (
+                        {badges.map(badge => (
                           <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4 }}>
                             <Card
                               sx={{
@@ -673,7 +688,7 @@ const BadgesPage = () => {
                                     color: '#0f08',
                                   }}
                                 >
-                                  Issued by: {badge.issuer.substring(0, 8)}...
+                                  Issued by: {badge.creator.substring(0, 8)}...
                                 </Typography>
                                 <Typography
                                   variant="caption"
@@ -683,7 +698,14 @@ const BadgesPage = () => {
                                     color: '#0f08',
                                   }}
                                 >
-                                  Date: {badge.created}
+                                  Status:{' '}
+                                  <span
+                                    style={{
+                                      color: badge.status === 'accepted' ? '#0f0' : '#ff8c00',
+                                    }}
+                                  >
+                                    {badge.status}
+                                  </span>
                                 </Typography>
                               </CardContent>
                               <CardActions sx={{ p: 2, borderTop: '1px dashed #0f0' }}>
@@ -707,105 +729,6 @@ const BadgesPage = () => {
                           </Grid2>
                         ))}
                       </Grid2>
-
-                      <Typography
-                        variant="subtitle2"
-                        component="h4"
-                        gutterBottom
-                        sx={{
-                          fontFamily: '"Share Tech Mono", monospace',
-                          mt: 4,
-                          mb: 2,
-                        }}
-                      >
-                        BADGES_CREATED
-                      </Typography>
-
-                      <Grid2 container spacing={3}>
-                        {mockBadges.map(badge => (
-                          <Grid2 key={badge.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                            <Card
-                              sx={{
-                                bgcolor: '#1a1a1a',
-                                color: '#0f0',
-                                border: '1px solid #0f0',
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                              }}
-                            >
-                              <Box sx={{ p: 2, textAlign: 'center' }}>
-                                <img
-                                  src={badge.image}
-                                  alt={badge.name}
-                                  style={{
-                                    width: 100,
-                                    height: 100,
-                                    borderRadius: '4px',
-                                    margin: '0 auto',
-                                  }}
-                                />
-                              </Box>
-                              <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography
-                                  variant="h6"
-                                  component="h3"
-                                  gutterBottom
-                                  sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-                                >
-                                  {badge.name}
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    mb: 2,
-                                    fontFamily: '"Share Tech Mono", monospace',
-                                  }}
-                                >
-                                  {badge.description}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    display: 'block',
-                                    fontFamily: '"Share Tech Mono", monospace',
-                                    color: '#0f08',
-                                  }}
-                                >
-                                  Created: {badge.created}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    display: 'block',
-                                    fontFamily: '"Share Tech Mono", monospace',
-                                    color: '#0f08',
-                                  }}
-                                >
-                                  Assigned: 12 times
-                                </Typography>
-                              </CardContent>
-                              <CardActions sx={{ p: 2, borderTop: '1px dashed #0f0' }}>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  fullWidth
-                                  sx={{
-                                    color: '#0f0',
-                                    borderColor: '#0f0',
-                                    '&:hover': {
-                                      borderColor: '#0f0',
-                                      bgcolor: 'rgba(0,255,0,0.1)',
-                                    },
-                                  }}
-                                >
-                                  Manage Badge
-                                </Button>
-                              </CardActions>
-                            </Card>
-                          </Grid2>
-                        ))}
-                      </Grid2>
                     </>
                   ) : (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -818,10 +741,27 @@ const BadgesPage = () => {
                           opacity: 0.7,
                         }}
                       >
-                        You haven&apos;t received any badges yet
+                        {badgesError
+                          ? 'No badges found. Please try again later.'
+                          : "You don't have any badges yet"}
                       </Typography>
+                      {badgesError && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: 'block',
+                            fontFamily: '"Share Tech Mono", monospace',
+                            opacity: 0.5,
+                          }}
+                        >
+                          {badgesError}
+                        </Typography>
+                      )}
                     </Box>
                   )}
+
+                  {/* You can keep the "BADGES_CREATED" section if you want to show badges created by the user */}
+                  {/* Or remove it if you're not implementing that feature yet */}
                 </Box>
               )}
               {currentTab === 1 && <BadgeCreationForm ndk={ndk} />}
