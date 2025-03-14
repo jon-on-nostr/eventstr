@@ -13,6 +13,7 @@ import {
   Fade,
   Grow,
 } from '@mui/material';
+import Image from 'next/image';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -605,7 +606,7 @@ const BadgeCreationForm: React.FC<BadgeCreationFormProps> = ({ ndk, onSuccess })
                   imagePreviewError ? (
                     <ErrorOutlineIcon sx={{ fontSize: 40, color: '#f00' }} />
                   ) : (
-                    <img
+                    <Image
                       src={formState.image}
                       alt="Badge Preview"
                       onError={handleImageError}
@@ -647,7 +648,7 @@ const BadgeCreationForm: React.FC<BadgeCreationFormProps> = ({ ndk, onSuccess })
                     {thumbnailPreviewError ? (
                       <ErrorOutlineIcon sx={{ fontSize: 20, color: '#f00' }} />
                     ) : (
-                      <img
+                      <Image
                         src={formState.thumbnail}
                         alt="Thumbnail Preview"
                         onError={handleThumbnailError}

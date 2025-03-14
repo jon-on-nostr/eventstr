@@ -10,7 +10,6 @@ import {
   Alert,
   Paper,
   Button,
-  useTheme,
 } from '@mui/material';
 import { AddCircleOutline as AddCircleOutlineIcon } from '@mui/icons-material';
 import { BadgesService, BadgeDefinition } from '@/services/badges';
@@ -29,7 +28,6 @@ interface CreatedBadgesPanelProps {
  * Displays badges created by the current user
  */
 const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
-  const theme = useTheme();
   const [modalState, setModalState] = useState({
     open: false,
     selectedBadge: null as BadgeDefinition | null,
