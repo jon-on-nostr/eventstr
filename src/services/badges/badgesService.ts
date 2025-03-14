@@ -521,4 +521,70 @@ export default class BadgesService {
       );
     }
   }
+
+  /**
+   * Gets badges created by a specific user
+   *
+   * @param creatorPubkey - The public key of the creator
+   * @returns Promise with array of badge definitions created by this user
+   */
+  public async getCreatedBadges(creatorPubkey: string): Promise<BadgeDefinition[]> {
+    try {
+      // Convert hex to npub if needed
+      if (!creatorPubkey.startsWith('npub')) {
+        creatorPubkey = nip19.npubEncode(creatorPubkey);
+      }
+
+      // Use the existing query method but filter by creator
+      return this.queryBadgeDefinitions({
+        creator: creatorPubkey,
+        limit: 50,
+      });
+    } catch (error) {
+      console.error('Error getting created badges:', error);
+      throw new Error(
+        `Failed to get created badges: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  /**
+   * Gets detailed information about badge recipients
+   *
+   * @param badgeId - The badge definition ID
+   * @returns Promise with array of badge awards with recipient information
+   */
+  public async getBadgeRecipients(badgeId: string): Promise<BadgeAward[]> {
+    try {
+      // Use the existing query method but filter by badge ID
+      return this.queryBadgeAwards({
+        badgeDefId: badgeId,
+        limit: 100,
+      });
+    } catch (error) {
+      console.error('Error getting badge recipients:', error);
+      throw new Error(
+        `Failed to get badge recipients: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  /**
+   * Gets the current user's public key if signed in
+   *
+   * @returns Promise with the user's public key or null if not signed in
+   */
+  public async getCurrentUserPubkey(): Promise<string | null> {
+    try {
+      if (!this.ndk.signer) {
+        return null;
+      }
+
+      const user = await this.ndk.signer.user();
+      return user.pubkey || null;
+    } catch (error) {
+      console.error('Error getting current user pubkey:', error);
+      return null;
+    }
+  }
 }

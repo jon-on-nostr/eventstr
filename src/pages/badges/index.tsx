@@ -35,41 +35,13 @@ import { useProfile } from '@/hooks/useProfile';
 import BadgeSearch from '@/components/ui/BadgeSearch';
 import { useNostr } from '@/hooks/useNostr';
 import { useBadges } from '@/hooks/useBadges';
-
-// Mock badge data for UI development
-const mockBadges = [
-  {
-    id: '1',
-    name: 'Early Adopter',
-    description: 'One of the first 100 users of Eventstr',
-    image: 'https://placehold.co/200x200/1a1a1a/00ff00?text=EA',
-    issuer: 'npub1eventstrxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    created: '2023-10-15',
-  },
-  {
-    id: '2',
-    name: 'Contributor',
-    description: 'Contributed to the Eventstr codebase',
-    image: 'https://placehold.co/200x200/1a1a1a/00ff00?text=DEV',
-    issuer: 'npub1eventstrxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    created: '2023-11-01',
-  },
-  {
-    id: '3',
-    name: 'Meetup Attendee',
-    description: 'Attended the Nostr Meetup in Austin',
-    image: 'https://placehold.co/200x200/1a1a1a/00ff00?text=ATX',
-    issuer: 'npub1someuserxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    created: '2023-12-05',
-  },
-];
+import CreatedBadgesPanel from '@/components/ui/CreatedBadgesPanel';
 
 // The main component that uses the badge context
 const BadgesPage = () => {
   const { ndk, isReady } = useNostr();
   // State for the current tab
   const [currentTab, setCurrentTab] = useState(0);
-  const [searchNpub, setSearchNpub] = useState('');
 
   const { isAuthenticated, currentUser, isLoading: authLoading, logout } = useAuth();
   const { currentProfile, isLoading: profileLoading } = useProfile();
@@ -765,6 +737,7 @@ const BadgesPage = () => {
                 </Box>
               )}
               {currentTab === 1 && <BadgeCreationForm ndk={ndk} />}
+              {currentTab === 2 && <CreatedBadgesPanel ndk={ndk} />}
             </Box>
           </Paper>
         </Container>
