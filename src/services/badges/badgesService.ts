@@ -419,8 +419,6 @@ export default class BadgesService {
 
       // Get all badge awards for this user
       const awards = await this.queryBadgeAwards({ awardedTo: pubkey });
-
-      // Get details for each badge definition
       const badges: Array<BadgeDefinition & { status: 'pending' | 'accepted' | 'blocked' }> = [];
 
       // Use a map to deduplicate badges (user might have received the same badge multiple times)
@@ -585,6 +583,98 @@ export default class BadgesService {
     } catch (error) {
       console.error('Error getting current user pubkey:', error);
       return null;
+    }
+  }
+
+  /**
+   * Gets pending badge awards for the current user
+   * @param userPubkey - The pubkey to check pending badges for (npub or hex)
+   * @returns Promise with array of badge definitions with pending status
+   */
+  public async getPendingBadgeAwards(
+    userPubkey: string
+  ): Promise<Array<BadgeDefinition & { status: 'pending'; awardId: string; awardedAt: Date }>> {
+    try {
+      // Convert npub to hex if needed
+      let hexPubkey = userPubkey;
+      if (userPubkey.startsWith('npub')) {
+        const { data } = nip19.decode(userPubkey);
+        hexPubkey = data as string;
+      }
+
+      // Create a filter specifically for kind:8 (badge award) events where this user is tagged
+      const filter: NDKFilter = {
+        kinds: [8],
+        '#p': [hexPubkey],
+        // Look back about a month for pending badges
+        since: Math.floor(Date.now() / 1000) - 86400 * 30,
+      };
+
+      // Fetch the award events
+      const events = await this.ndk.fetchEvents(filter);
+      const pendingBadges: Array<
+        BadgeDefinition & {
+          status: 'pending';
+          awardId: string;
+          awardedAt: Date;
+        }
+      > = [];
+
+      // Map to track badges we've already processed
+      const processedAwardIds = new Map<string, boolean>();
+
+      // Process each award event
+      for (const event of events) {
+        // Skip if we've already processed this award
+        if (processedAwardIds.has(event.id)) continue;
+        processedAwardIds.set(event.id, true);
+
+        // Get badge definition from the 'a' tag
+        const badgeDefTag = event.tags.find(tag => tag[0] === 'a');
+        if (!badgeDefTag || badgeDefTag.length < 2) continue;
+
+        const badgeDefId = badgeDefTag[1];
+
+        // Check if this user has already accepted or blocked this award
+        const statusKey = `${event.id}:${hexPubkey}`;
+        const acceptanceStatus = new Map<string, 'accepted' | 'blocked'>();
+        await this.getBadgeAcceptanceStatuses(acceptanceStatus);
+
+        // Skip if already processed
+        if (acceptanceStatus.has(statusKey)) continue;
+
+        try {
+          // Get the badge definition
+          const badgeEvent = await this.ndk.fetchEvent({ ids: [badgeDefId] });
+
+          if (badgeEvent) {
+            const content = JSON.parse(badgeEvent.content);
+
+            pendingBadges.push({
+              id: badgeEvent.id,
+              name: content.name,
+              description: content.description,
+              image: content.image,
+              thumbnail: content.thumbnail,
+              createdAt: badgeEvent.created_at || 0,
+              creator: nip19.npubEncode(badgeEvent.pubkey),
+              status: 'pending',
+              awardId: event.id,
+              awardedAt: new Date(event?.created_at || 0 * 1000),
+            });
+          }
+        } catch (e) {
+          console.warn(`Error fetching badge definition ${badgeDefId}:`, e);
+        }
+      }
+
+      console.log(`Found ${pendingBadges.length} pending badges for user ${userPubkey}`);
+      return pendingBadges;
+    } catch (error) {
+      console.error('Error fetching pending badge awards:', error);
+      throw new Error(
+        `Failed to fetch pending badges: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 }

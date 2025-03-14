@@ -46,6 +46,7 @@ export function useBadges(npubOverride?: string) {
       setError(null);
 
       try {
+        console.log('nefpre');
         // Create a timeout controller
         const timeoutId = setTimeout(() => {
           console.log('Badge fetch timed out, returning empty list');
@@ -54,8 +55,11 @@ export function useBadges(npubOverride?: string) {
         }, 15000);
 
         // Fetch badges
+
         try {
           const userBadges = await badgesService.getUserBadges(npub);
+          console.log('what npub: ', npub);
+          console.log('what userBadges: ', userBadges);
           // Clear timeout since we got a response
           clearTimeout(timeoutId);
           setBadges(userBadges);

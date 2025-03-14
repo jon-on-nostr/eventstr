@@ -36,19 +36,17 @@ import BadgeSearch from '@/components/ui/BadgeSearch';
 import { useNostr } from '@/hooks/useNostr';
 import { useBadges } from '@/hooks/useBadges';
 import CreatedBadgesPanel from '@/components/ui/CreatedBadgesPanel';
+import AcceptBadgePanel from '@/components/ui/AcceptBadgePanel';
 
 // The main component that uses the badge context
 const BadgesPage = () => {
   const { ndk, isReady } = useNostr();
-  // State for the current tab
   const [currentTab, setCurrentTab] = useState(0);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const { isAuthenticated, currentUser, isLoading: authLoading, logout } = useAuth();
   const { currentProfile, isLoading: profileLoading } = useProfile();
   const { badges, isLoading: badgesLoading, error: badgesError } = useBadges();
-
-  // Add these states to your BadgesPageContent component
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   if (!isReady || !ndk) {
     return null;
@@ -57,12 +55,6 @@ const BadgesPage = () => {
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
-  };
-
-  // Handle search form submission
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // performSearch(searchQuery);
   };
 
   // Add these handlers
@@ -578,7 +570,7 @@ const BadgesPage = () => {
                       fontFamily: '"Share Tech Mono", monospace',
                     }}
                   >
-                    View all badges you&apos;ve created and received.
+                    View all badges you&apos;ve received.
                   </Typography>
 
                   {badgesLoading ? (
@@ -738,6 +730,7 @@ const BadgesPage = () => {
               )}
               {currentTab === 1 && <BadgeCreationForm ndk={ndk} />}
               {currentTab === 2 && <CreatedBadgesPanel ndk={ndk} />}
+              {currentTab === 3 && <AcceptBadgePanel ndk={ndk} />}
             </Box>
           </Paper>
         </Container>
