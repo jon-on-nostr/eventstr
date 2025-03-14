@@ -33,6 +33,8 @@ import LoginModal from '@/components/ui/LoginModal';
 import NostrIcon from '@/components/ui/NostrIcon';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import BadgeSearch from '@/components/ui/BadgeSearch';
+import { useNostr } from '@/hooks/useNostr';
 
 // Mock badge data for UI development
 const mockBadges = [
@@ -64,6 +66,7 @@ const mockBadges = [
 
 // The main component that uses the badge context
 const BadgesPage = () => {
+  const { ndk, isReady } = useNostr();
   // State for the current tab
   const [currentTab, setCurrentTab] = useState(0);
   const [searchNpub, setSearchNpub] = useState('');
@@ -73,6 +76,10 @@ const BadgesPage = () => {
 
   // Add these states to your BadgesPageContent component
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  if (!isReady || !ndk) {
+    return null;
+  }
 
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -519,43 +526,7 @@ const BadgesPage = () => {
               Look up badges by Nostr public key (npub) to see what badges a user has earned.
             </Typography>
 
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <TextField
-                fullWidth
-                placeholder="Enter npub..."
-                variant="outlined"
-                value={searchNpub}
-                onChange={e => setSearchNpub(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: '#0f0',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#0f0',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#0f0',
-                    },
-                  },
-                }}
-              />
-              <Button
-                onClick={handleSearch}
-                variant="contained"
-                startIcon={<SearchIcon />}
-                sx={{
-                  bgcolor: '#0f0',
-                  color: '#000',
-                  fontWeight: 'bold',
-                  '&:hover': {
-                    bgcolor: '#0c0',
-                  },
-                }}
-              >
-                Search
-              </Button>
-            </Box>
+            <BadgeSearch ndk={ndk} />
           </Paper>
 
           {/* Tabs for different badge actions */}
