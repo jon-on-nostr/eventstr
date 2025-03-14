@@ -606,7 +606,7 @@ const BadgeCreationForm: React.FC<BadgeCreationFormProps> = ({ ndk, onSuccess })
                   imagePreviewError ? (
                     <ErrorOutlineIcon sx={{ fontSize: 40, color: '#f00' }} />
                   ) : (
-                    <Image
+                    <img
                       src={formState.image}
                       alt="Badge Preview"
                       onError={handleImageError}
@@ -648,7 +648,7 @@ const BadgeCreationForm: React.FC<BadgeCreationFormProps> = ({ ndk, onSuccess })
                     {thumbnailPreviewError ? (
                       <ErrorOutlineIcon sx={{ fontSize: 20, color: '#f00' }} />
                     ) : (
-                      <Image
+                      <img
                         src={formState.thumbnail}
                         alt="Thumbnail Preview"
                         onError={handleThumbnailError}

@@ -18,7 +18,6 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import Image from 'next/image';
 import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
@@ -435,7 +434,7 @@ const AcceptBadgeSection: React.FC<AcceptBadgeSectionProps> = ({ ndk }) => {
                       p: 1,
                     }}
                   >
-                    <Image
+                    <img
                       src={detailModal.badge.image}
                       alt={detailModal.badge.name}
                       onError={handleImageError}

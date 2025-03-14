@@ -14,7 +14,6 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import Image from 'next/image';
 import {
   Close as CloseIcon,
   ContentCopy as ContentCopyIcon,
@@ -332,7 +331,7 @@ const BadgeInfoModal: React.FC<BadgeInfoModalProps> = ({ ndk, badge, isOpen, onC
                 mb: 3,
               }}
             >
-              <Image
+              <img
                 src={badge.image}
                 alt={badge.name}
                 onError={handleImageError}
@@ -425,7 +424,7 @@ const BadgeInfoModal: React.FC<BadgeInfoModalProps> = ({ ndk, badge, isOpen, onC
                     p: 1,
                   }}
                 >
-                  <Image
+                  <img
                     src={badge.image}
                     alt={badge.name}
                     onError={handleImageError}

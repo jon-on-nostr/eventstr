@@ -26,7 +26,6 @@ import {
   CheckCircle as CheckCircleIcon,
   Logout as LogoutIcon,
 } from '@mui/icons-material';
-import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import LoginModal from '@/components/ui/LoginModal';
 import NostrIcon from '@/components/ui/NostrIcon';
@@ -616,7 +615,7 @@ const BadgesPage = () => {
                               }}
                             >
                               <Box sx={{ p: 2, textAlign: 'center' }}>
-                                <Image
+                                <img
                                   src={badge.image}
                                   alt={badge.name}
                                   style={{
