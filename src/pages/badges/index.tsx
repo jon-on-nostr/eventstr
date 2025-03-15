@@ -429,18 +429,6 @@ const BadgesPage = () => {
           {/* Login/Search Section */}
           <CyberCard>{renderUserProfile()}</CyberCard>
 
-          {/* Search Section */}
-          <CyberCard>
-            <CyberTypography variant="h6" component="h3">
-              SEARCH_BADGES
-            </CyberTypography>
-            <CyberTypography variant="body2">
-              Look up badges by Nostr public key (npub) to see what badges a user has accepted.
-            </CyberTypography>
-
-            <BadgeSearch ndk={ndk} />
-          </CyberCard>
-
           {/* Tabs for different badge actions */}
           <CyberCard sx={{ p: 0 }}>
             <Tabs
@@ -605,6 +593,18 @@ const BadgesPage = () => {
               {currentTab === 2 && <CreatedBadgesPanel ndk={ndk} />}
               {currentTab === 3 && <AcceptBadgePanel ndk={ndk} />}
             </Box>
+          </CyberCard>
+
+          {/* Search Section */}
+          <CyberCard>
+            <CyberTypography variant="h6" component="h3">
+              SEARCH_BADGES
+            </CyberTypography>
+            <CyberTypography variant="body2">
+              Look up badges by Nostr public key (npub) to see what badges a user has accepted.
+            </CyberTypography>
+
+            <BadgeSearch ndk={ndk} />
           </CyberCard>
         </Container>
       </Box>
