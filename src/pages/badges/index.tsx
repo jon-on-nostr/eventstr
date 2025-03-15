@@ -37,6 +37,11 @@ import { useNostr } from '@/hooks/useNostr';
 import { useBadges } from '@/hooks/useBadges';
 import CreatedBadgesPanel from '@/components/ui/CreatedBadgesPanel';
 import AcceptBadgePanel from '@/components/ui/AcceptBadgePanel';
+import CyberCard from '@/components/ui/CyberCard';
+import CyberTypography from '@/components/ui/CyberTypography';
+import CyberButton from '@/components/ui/CyberButton';
+import LoadingState from '@/components/ui/LoadingState';
+import EmptyState from '@/components/ui/EmptyState';
 
 // The main component that uses the badge context
 const BadgesPage = () => {
@@ -76,9 +81,7 @@ const BadgesPage = () => {
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <CircularProgress size={24} sx={{ color: '#0f0', mr: 2 }} />
-          <Typography variant="body2" sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
-            Loading profile...
-          </Typography>
+          <CyberTypography variant="body2">Loading profile...</CyberTypography>
         </Box>
       );
     }
@@ -99,9 +102,9 @@ const BadgesPage = () => {
           )}
 
           <Box>
-            <Typography variant="subtitle1" sx={{ fontFamily: '"Share Tech Mono", monospace' }}>
+            <CyberTypography variant="subtitle1">
               {currentProfile.displayName || currentProfile.name || 'Anonymous User'}
-            </Typography>
+            </CyberTypography>
             <Typography
               variant="caption"
               sx={{
@@ -116,43 +119,22 @@ const BadgesPage = () => {
             </Typography>
           </Box>
 
-          <Button
-            variant="outlined"
+          <CyberButton
             size="small"
             startIcon={<LogoutIcon />}
             onClick={handleLogout}
-            sx={{
-              ml: 2,
-              color: '#0f0',
-              borderColor: '#0f0',
-              '&:hover': {
-                borderColor: '#0f0',
-                bgcolor: 'rgba(0,255,0,0.1)',
-              },
-            }}
+            sx={{ ml: 2 }}
           >
             Logout
-          </Button>
+          </CyberButton>
         </Box>
       );
     }
 
     return (
-      <Button
-        variant="outlined"
-        startIcon={<LoginIcon />}
-        onClick={handleOpenLoginModal}
-        sx={{
-          color: '#0f0',
-          borderColor: '#0f0',
-          '&:hover': {
-            borderColor: '#0f0',
-            bgcolor: 'rgba(0,255,0,0.1)',
-          },
-        }}
-      >
+      <CyberButton startIcon={<LoginIcon />} onClick={handleOpenLoginModal}>
         Login
-      </Button>
+      </CyberButton>
     );
   };
 
@@ -223,18 +205,14 @@ const BadgesPage = () => {
         }}
       >
         <Container maxWidth="md">
-          <Typography
+          <CyberTypography
             variant="h4"
             component="h2"
             gutterBottom
-            sx={{
-              fontFamily: '"Share Tech Mono", monospace',
-              mb: 4,
-              textAlign: 'center',
-            }}
+            sx={{ mb: 4, textAlign: 'center' }}
           >
             HOW_IT_WORKS
-          </Typography>
+          </CyberTypography>
 
           <Stepper
             activeStep={-1}
@@ -449,62 +427,22 @@ const BadgesPage = () => {
       >
         <Container maxWidth="md">
           {/* Login/Search Section */}
-          <Paper
-            elevation={0}
-            sx={{
-              bgcolor: '#111',
-              color: '#0f0',
-              border: '1px solid #0f0',
-              p: 3,
-              mb: 4,
-            }}
-          >
-            {renderUserProfile()}
-          </Paper>
+          <CyberCard>{renderUserProfile()}</CyberCard>
 
           {/* Search Section */}
-          <Paper
-            elevation={0}
-            sx={{
-              bgcolor: '#111',
-              color: '#0f0',
-              border: '1px solid #0f0',
-              p: 3,
-              mb: 4,
-            }}
-          >
-            <Typography
-              variant="h6"
-              component="h3"
-              gutterBottom
-              sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-            >
+          <CyberCard>
+            <CyberTypography variant="h6" component="h3">
               SEARCH_BADGES
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                mb: 3,
-                fontFamily: '"Share Tech Mono", monospace',
-              }}
-            >
-              Look up badges by Nostr public key (npub) to see what badges a user has earned.
-            </Typography>
+            </CyberTypography>
+            <CyberTypography variant="body2">
+              Look up badges by Nostr public key (npub) to see what badges a user has accepted.
+            </CyberTypography>
 
             <BadgeSearch ndk={ndk} />
-          </Paper>
+          </CyberCard>
 
           {/* Tabs for different badge actions */}
-          <Paper
-            elevation={0}
-            sx={{
-              bgcolor: '#111',
-              color: '#0f0',
-              border: '1px solid #0f0',
-              mb: 4,
-            }}
-            id="badge-actions"
-          >
+          <CyberCard sx={{ p: 0 }}>
             <Tabs
               value={currentTab}
               onChange={handleTabChange}
@@ -555,51 +493,20 @@ const BadgesPage = () => {
               {/* My Badges Tab */}
               {currentTab === 0 && (
                 <Box>
-                  <Typography
-                    variant="h6"
-                    component="h3"
-                    gutterBottom
-                    sx={{ fontFamily: '"Share Tech Mono", monospace' }}
-                  >
+                  <CyberTypography variant="h6" component="h3">
                     MY_BADGES
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      mb: 3,
-                      fontFamily: '"Share Tech Mono", monospace',
-                    }}
-                  >
+                  </CyberTypography>
+                  <CyberTypography variant="body2">
                     View all badges you&apos;ve received.
-                  </Typography>
+                  </CyberTypography>
 
                   {badgesLoading ? (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <CircularProgress size={40} sx={{ color: '#0f0', mb: 2 }} />
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontFamily: '"Share Tech Mono", monospace',
-                          opacity: 0.7,
-                        }}
-                      >
-                        Loading your badges...
-                      </Typography>
-                    </Box>
+                    <LoadingState message="Loading your badges..." />
                   ) : badges && badges.length > 0 ? (
                     <>
-                      <Typography
-                        variant="subtitle2"
-                        component="h4"
-                        gutterBottom
-                        sx={{
-                          fontFamily: '"Share Tech Mono", monospace',
-                          mt: 4,
-                          mb: 2,
-                        }}
-                      >
+                      <CyberTypography variant="subtitle2" component="h4" sx={{ mt: 4, mb: 2 }}>
                         BADGES_RECEIVED
-                      </Typography>
+                      </CyberTypography>
 
                       <Grid2 container spacing={3}>
                         {badges.map(badge => (
@@ -673,21 +580,9 @@ const BadgesPage = () => {
                                 </Typography>
                               </CardContent>
                               <CardActions sx={{ p: 2, borderTop: '1px dashed #0f0' }}>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  fullWidth
-                                  sx={{
-                                    color: '#0f0',
-                                    borderColor: '#0f0',
-                                    '&:hover': {
-                                      borderColor: '#0f0',
-                                      bgcolor: 'rgba(0,255,0,0.1)',
-                                    },
-                                  }}
-                                >
+                                <CyberButton size="small" fullWidth>
                                   View Details
-                                </Button>
+                                </CyberButton>
                               </CardActions>
                             </Card>
                           </Grid2>
@@ -695,44 +590,22 @@ const BadgesPage = () => {
                       </Grid2>
                     </>
                   ) : (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <NostrIcon sx={{ fontSize: 60, mb: 2 }} />
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          mb: 3,
-                          fontFamily: '"Share Tech Mono", monospace',
-                          opacity: 0.7,
-                        }}
-                      >
-                        {badgesError
+                    <EmptyState
+                      message={
+                        badgesError
                           ? 'No badges found. Please try again later.'
-                          : "You don't have any badges yet"}
-                      </Typography>
-                      {badgesError && (
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            display: 'block',
-                            fontFamily: '"Share Tech Mono", monospace',
-                            opacity: 0.5,
-                          }}
-                        >
-                          {badgesError}
-                        </Typography>
-                      )}
-                    </Box>
+                          : "You don't have any badges yet"
+                      }
+                      error={badgesError}
+                    />
                   )}
-
-                  {/* You can keep the "BADGES_CREATED" section if you want to show badges created by the user */}
-                  {/* Or remove it if you're not implementing that feature yet */}
                 </Box>
               )}
               {currentTab === 1 && <BadgeCreationForm ndk={ndk} />}
               {currentTab === 2 && <CreatedBadgesPanel ndk={ndk} />}
               {currentTab === 3 && <AcceptBadgePanel ndk={ndk} />}
             </Box>
-          </Paper>
+          </CyberCard>
         </Container>
       </Box>
 

@@ -103,7 +103,7 @@ const CreatedBadgesPanel: React.FC<CreatedBadgesPanelProps> = ({ ndk }) => {
         sx={{
           bgcolor: '#111',
           color: '#0f0',
-          border: '1px solid #0f0',
+          border: { md: '1px solid #0f0' },
           p: 3,
           mb: 4,
         }}
