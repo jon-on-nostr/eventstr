@@ -44,7 +44,6 @@ const AcceptBadgeSection: React.FC<AcceptBadgeSectionProps> = ({ ndk }) => {
   const badgesService = useMemo(() => new BadgesService(ndk), [ndk]);
 
   const { pendingBadges, isLoading } = usePendingBadges(badgesService);
-  console.log('pending badges: ,', pendingBadges);
   // State for badge detail modal
   const [detailModal, setDetailModal] = useState<{
     open: boolean;

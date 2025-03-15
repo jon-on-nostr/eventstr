@@ -126,7 +126,6 @@ export default class BadgesService {
       if (!this.ndk.signer) {
         throw new Error('User must be signed in to accept or block badges');
       }
-
       // Create a new event for badge acceptance/blocking (kind:30008)
       const event = new NDKEvent(this.ndk);
       event.kind = 30008;
@@ -135,10 +134,8 @@ export default class BadgesService {
       // Add appropriate tag based on action
       const actionTag = action === 'accept' ? 'a' : 'b';
       event.tags = [[actionTag, awardEventId]];
-
       // Sign and publish the event
       await event.publish();
-
       return event;
     } catch (error) {
       console.error(`Error ${action}ing badge:`, error);
@@ -617,25 +614,48 @@ export default class BadgesService {
       // Map to track badges we've already processed
       const processedAwardIds = new Map<string, boolean>();
 
+      // First, get the acceptance/blocking events from this user
+      const acceptanceFilter: NDKFilter = {
+        kinds: [30008],
+        authors: [hexPubkey],
+      };
+
+      const acceptanceEvents = await this.ndk.fetchEvents(acceptanceFilter);
+      // Create a Set of award IDs that have already been responded to
+      const respondedAwardIds = new Set<string>();
+
+      for (const event of acceptanceEvents) {
+        // Check for acceptance tags
+        const acceptTag = event.tags.find(tag => tag[0] === 'a');
+        if (acceptTag && acceptTag[1]) {
+          respondedAwardIds.add(acceptTag[1]);
+        }
+
+        // Check for blocking tags
+        const blockTag = event.tags.find(tag => tag[0] === 'b');
+        if (blockTag && blockTag[1]) {
+          respondedAwardIds.add(blockTag[1]);
+        }
+      }
+
       // Process each award event
       for (const event of events) {
         // Skip if we've already processed this award
         if (processedAwardIds.has(event.id)) continue;
         processedAwardIds.set(event.id, true);
+        // Skip if this user has already accepted or blocked this award
+        const eventATags = event.tags
+          .filter((tag, index) => {
+            return tag[0] === 'a' ? tag[1] : false;
+          })
+          .map(tagArr => tagArr[1]);
+        if (respondedAwardIds.has(eventATags[0])) continue;
 
         // Get badge definition from the 'a' tag
         const badgeDefTag = event.tags.find(tag => tag[0] === 'a');
         if (!badgeDefTag || badgeDefTag.length < 2) continue;
 
         const badgeDefId = badgeDefTag[1];
-
-        // Check if this user has already accepted or blocked this award
-        const statusKey = `${event.id}:${hexPubkey}`;
-        const acceptanceStatus = new Map<string, 'accepted' | 'blocked'>();
-        await this.getBadgeAcceptanceStatuses(acceptanceStatus);
-
-        // Skip if already processed
-        if (acceptanceStatus.has(statusKey)) continue;
 
         try {
           // Get the badge definition
@@ -654,7 +674,7 @@ export default class BadgesService {
               creator: nip19.npubEncode(badgeEvent.pubkey),
               status: 'pending',
               awardId: event.id,
-              awardedAt: new Date(event?.created_at || 0 * 1000),
+              awardedAt: new Date((event?.created_at || 0) * 1000),
             });
           }
         } catch (e) {
