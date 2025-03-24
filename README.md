@@ -6,6 +6,10 @@
 
 Eventstr is a decentralized event platform built on NOSTR and Bitcoin, designed to revolutionize how communities organize, discover, and attend events. Our mission is to make ticket scalping and bot purchases impossible by design, while prioritizing privacy, fair access, and instant payments.
 
+## Security Updates
+
+**March 24, 2025**: Updated NextJS to version 15.2.3 to patch CVE-2025-29927, a critical middleware authorization bypass vulnerability. This update prevents potential attackers from bypassing security checks in Eventstr's authentication system.
+
 ## Key Features
 
 - 🛡️ **Bot-Resistant Ticketing**: Innovative trust-based system prevents automated purchases
