@@ -67,7 +67,9 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <StyledButton
-      variant={undefined} // Unset MUI's variant to avoid conflicts
+      // Pass MUI's regular variant as undefined to avoid conflicts with our custom variant
+      variant="text"
+      // Pass our custom props
       variant={variant}
       fullWidthOnMobile={fullWidthOnMobile}
       {...props}
