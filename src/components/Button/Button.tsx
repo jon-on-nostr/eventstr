@@ -11,47 +11,52 @@ export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   fullWidthOnMobile?: boolean;
 }
 
-// Create styled versions of MUI button for each variant
-const PrimaryButton = styled(MuiButton)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  '&:hover': {
-    backgroundColor: theme.palette.primary.dark,
-  },
-  fontWeight: 600,
-}));
+// Create a single styled component with dynamic styles based on variant prop
+const StyledButton = styled(MuiButton, {
+  shouldForwardProp: (prop) => prop !== 'variant' && prop !== 'fullWidthOnMobile',
+})<ButtonProps>(({ theme, variant = 'primary', fullWidthOnMobile }) => {
+  // Define styles by variant
+  const variantStyles = {
+    primary: {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText,
+      '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+      },
+      fontWeight: 600,
+    },
+    secondary: {
+      backgroundColor: theme.palette.secondary.main,
+      color: theme.palette.secondary.contrastText,
+      '&:hover': {
+        backgroundColor: theme.palette.secondary.dark,
+      },
+      fontWeight: 600,
+    },
+    tertiary: {
+      backgroundColor: 'transparent',
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.divider}`,
+      '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+      },
+      fontWeight: 500,
+    },
+  };
 
-const SecondaryButton = styled(MuiButton)(({ theme }) => ({
-  backgroundColor: theme.palette.secondary.main,
-  color: theme.palette.secondary.contrastText,
-  '&:hover': {
-    backgroundColor: theme.palette.secondary.dark,
-  },
-  fontWeight: 600,
-}));
-
-const TertiaryButton = styled(MuiButton)(({ theme }) => ({
-  backgroundColor: 'transparent',
-  color: theme.palette.text.primary,
-  border: `1px solid ${theme.palette.divider}`,
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  fontWeight: 500,
-}));
-
-// Responsive wrapper for the button
-const ResponsiveButtonWrapper = styled('div')<{ fullWidthOnMobile?: boolean }>(
-  ({ fullWidthOnMobile, theme }) => ({
-    display: 'inline-block',
+  // Return combined styles
+  return {
+    ...variantStyles[variant],
+    // Add responsive styles
+    width: 'auto',
     [theme.breakpoints.down('sm')]: {
       width: fullWidthOnMobile ? '100%' : 'auto',
     },
-  })
-);
+  };
+});
 
 /**
- * Custom button component for Eventstr that supports primary, secondary, and tertiary styles.
+ * Button component for Eventstr that supports primary, secondary, and tertiary styles.
  * Built on top of MUI Button with extended functionality.
  */
 export const Button: React.FC<ButtonProps> = ({ 
@@ -60,18 +65,15 @@ export const Button: React.FC<ButtonProps> = ({
   children, 
   ...props 
 }) => {
-  const ButtonComponent = {
-    primary: PrimaryButton,
-    secondary: SecondaryButton,
-    tertiary: TertiaryButton,
-  }[variant];
-
   return (
-    <ResponsiveButtonWrapper fullWidthOnMobile={fullWidthOnMobile}>
-      <ButtonComponent {...props}>
-        {children}
-      </ButtonComponent>
-    </ResponsiveButtonWrapper>
+    <StyledButton
+      variant={undefined} // Unset MUI's variant to avoid conflicts
+      variant={variant}
+      fullWidthOnMobile={fullWidthOnMobile}
+      {...props}
+    >
+      {children}
+    </StyledButton>
   );
 };
 
