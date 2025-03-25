@@ -72,4 +72,17 @@ describe('Button Component', () => {
     const button = screen.getByText('Disabled Button');
     expect(button).toBeDisabled();
   });
+
+  test('supports fullWidthOnMobile prop', () => {
+    render(
+      <TestWrapper>
+        <Button fullWidthOnMobile>Full Width Button</Button>
+      </TestWrapper>
+    );
+    
+    const button = screen.getByText('Full Width Button');
+    expect(button).toBeInTheDocument();
+    // Note: We can't easily test CSS media queries in JSDOM
+    // This would need visual regression testing or snapshot testing
+  });
 });
