@@ -28,7 +28,6 @@ import {
 } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
 import LoginModal from '@/components/ui/LoginModal';
-import NostrIcon from '@/components/ui/NostrIcon';
 import BadgeCreationForm from '@/components/ui/BadgeCreationForm';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';

@@ -645,7 +645,7 @@ export default class BadgesService {
         processedAwardIds.set(event.id, true);
         // Skip if this user has already accepted or blocked this award
         const eventATags = event.tags
-          .filter((tag, index) => {
+          .filter(tag => {
             return tag[0] === 'a' ? tag[1] : false;
           })
           .map(tagArr => tagArr[1]);
