@@ -230,7 +230,8 @@ export default class BadgesService {
   }
 
   /**
-   * Query for badge awards based on filters
+   * Query for badge awards based on filters. Optimized to fetch only relevant
+   * acceptance/blocking statuses.
    *
    * @param filters - Object containing query filters
    * @returns Promise with an array of badge awards
@@ -248,28 +249,19 @@ export default class BadgesService {
     try {
       const filter: NDKFilter = {
         kinds: [8],
-        limit: filters.limit || 20,
+        limit: filters.limit || 100, // Increased default limit slightly
       };
 
-      // Add optional filters
+      let specificRecipientHex: string | undefined = undefined;
+
+      // Add optional filters for the kind 8 query
       if (filters.awardedBy) {
-        // Convert npub to hex if needed
-        if (filters.awardedBy.startsWith('npub')) {
-          const { data } = nip19.decode(filters.awardedBy);
-          filter.authors = [data as string];
-        } else {
-          filter.authors = [filters.awardedBy];
-        }
+        filter.authors = [this.ensureHexPubkey(filters.awardedBy)];
       }
 
       if (filters.awardedTo) {
-        // Convert npub to hex if needed
-        let hexPubkey = filters.awardedTo;
-        if (filters.awardedTo.startsWith('npub')) {
-          const { data } = nip19.decode(filters.awardedTo);
-          hexPubkey = data as string;
-        }
-        filter['#p'] = [hexPubkey];
+        specificRecipientHex = this.ensureHexPubkey(filters.awardedTo);
+        filter['#p'] = [specificRecipientHex];
       }
 
       if (filters.badgeDefId) {
@@ -279,72 +271,180 @@ export default class BadgesService {
       if (filters.since) filter.since = filters.since;
       if (filters.until) filter.until = filters.until;
 
-      // Subscribe to events
-      const subscription = this.ndk.subscribe(filter);
+      // 1. Fetch the relevant badge award (kind:8) events
+      const awardEvents = await this.ndk.fetchEvents(filter);
+      if (!awardEvents || awardEvents.size === 0) {
+        return []; // No awards found matching criteria
+      }
 
-      // Process the events
+      // 2. Collect data needed to fetch acceptance statuses
+      const awardEventIds = new Set<string>();
+      const potentialRecipientPubkeys = new Set<string>();
+
+      awardEvents.forEach(event => {
+        awardEventIds.add(event.id);
+        // If we are filtering by a specific recipient, we only care about their status
+        if (specificRecipientHex) {
+          potentialRecipientPubkeys.add(specificRecipientHex);
+        } else {
+          // Otherwise, collect all recipients from the 'p' tags
+          event.tags
+            .filter(tag => tag[0] === 'p' && tag[1])
+            .forEach(tag => potentialRecipientPubkeys.add(tag[1]));
+        }
+      });
+
+      // 3. Fetch the relevant acceptance/blocking (kind:30008) events
+      const acceptanceStatusMap = await this.getSpecificBadgeAcceptanceStatuses(
+        awardEventIds,
+        potentialRecipientPubkeys
+      );
+
+      // 4. Process the award events and combine with status information
       const awards: BadgeAward[] = [];
 
-      // To track badge acceptance/blocking status
-      const acceptanceStatus = new Map<string, 'accepted' | 'blocked'>();
-
-      // First, get all acceptance/blocking events
-      await this.getBadgeAcceptanceStatuses(acceptanceStatus);
-
-      return new Promise(resolve => {
-        subscription.on('event', (event: NDKEvent) => {
-          try {
-            // Extract the badge definition ID from the 'a' tag
-            const badgeDefTag = event.tags.find(tag => tag[0] === 'a');
-            if (!badgeDefTag || !badgeDefTag[1]) {
-              console.warn('Invalid badge award, missing badge definition ID:', event.id);
-              return;
-            }
-
-            const badgeDefId = badgeDefTag[1];
-
-            // Extract awarded pubkeys from 'p' tags
-            const awardedToPubkeys = event.tags.filter(tag => tag[0] === 'p').map(tag => tag[1]);
-
-            if (!awardedToPubkeys.length) {
-              console.warn('Invalid badge award, no recipients specified:', event.id);
-              return;
-            }
-
-            // Convert awarder pubkey to npub
-            const awarderNpub = nip19.npubEncode(event.pubkey);
-
-            // Create badge award objects for each recipient
-            for (const pubkey of awardedToPubkeys) {
-              const recipientNpub = nip19.npubEncode(pubkey);
-
-              // Determine acceptance status
-              const statusKey = `${event.id}:${pubkey}`;
-              const status = acceptanceStatus.get(statusKey) || 'pending';
-
-              awards.push({
-                badgeDefId,
-                awardedTo: recipientNpub,
-                awardedBy: awarderNpub,
-                awardedAt: event.created_at || 0,
-                status,
-              });
-            }
-          } catch (e) {
-            console.warn('Error processing badge award:', e);
+      awardEvents.forEach(event => {
+        try {
+          const badgeDefTag = event.tags.find(tag => tag[0] === 'a' && tag[1]);
+          if (!badgeDefTag) {
+            console.warn('Skipping award event with missing "a" tag:', event.id);
+            return;
           }
-        });
+          const badgeDefId = badgeDefTag[1];
+          const awarderNpub = nip19.npubEncode(event.pubkey);
+          const awardedAt = event.created_at || 0;
 
-        subscription.on('eose', () => {
-          resolve(awards);
-        });
+          const recipientTags = event.tags.filter(tag => tag[0] === 'p' && tag[1]);
+
+          if (!recipientTags.length) {
+            console.warn('Skipping award event with no "p" tags:', event.id);
+            return;
+          }
+
+          for (const pTag of recipientTags) {
+            const recipientHex = pTag[1];
+
+            // If filtering by a specific recipient, skip if this pTag doesn't match
+            if (specificRecipientHex && recipientHex !== specificRecipientHex) {
+              continue;
+            }
+
+            const recipientNpub = nip19.npubEncode(recipientHex);
+
+            // Determine status: Look up in the map using AwardID:RecipientHex
+            const statusKey = `${event.id}:${recipientHex}`;
+            const status = acceptanceStatusMap.get(statusKey) || 'pending';
+            awards.push({
+              badgeDefId,
+              awardedTo: recipientNpub,
+              awardedBy: awarderNpub,
+              awardedAt,
+              status,
+            });
+          }
+        } catch (e) {
+          console.warn('Error processing individual badge award event:', event.id, e);
+        }
       });
+
+      return awards;
     } catch (error) {
       console.error('Error querying badge awards:', error);
       throw new Error(
         `Failed to query badge awards: ${error instanceof Error ? error.message : String(error)}`
       );
     }
+  }
+
+  /**
+   * Helper method to fetch and process relevant badge acceptance/blocking statuses.
+   *
+   * @param awardEventIds - Set of kind 8 event IDs to check statuses for.
+   * @param recipientPubkeys - Set of potential recipient pubkeys (authors of kind 30008).
+   * @returns Map where key is "awardEventId:recipientHexPubkey" and value is status.
+   */
+  private async getSpecificBadgeAcceptanceStatuses(
+    awardEventIds: Set<string>,
+    recipientPubkeys: Set<string>
+  ): Promise<Map<string, 'accepted' | 'blocked'>> {
+    const statusMap = new Map<string, 'accepted' | 'blocked'>();
+
+    if (awardEventIds.size === 0 || recipientPubkeys.size === 0) {
+      return statusMap; // Nothing to check
+    }
+
+    // Create a filter for kind 30008 events
+    // Authored by the potential recipients
+    // Referencing (via 'a' or 'b' tag) one of the specified award event IDs
+    // Note: Filtering by tag *value* (#a or #b) is not universally supported or efficient
+    // on all relays. Filtering by author is the most reliable first step.
+    // We will filter client-side based on the tag value.
+    const acceptanceFilter: NDKFilter = {
+      kinds: [30008],
+      authors: Array.from(recipientPubkeys),
+      // We *could* add '#a': Array.from(awardEventIds) and '#b': Array.from(awardEventIds)
+      // but it might not work well. Fetching by author and filtering locally is safer.
+      // Let's set a reasonable limit, assuming not *too* many accept/reject events per user.
+      limit: recipientPubkeys.size * 10, // Heuristic limit
+    };
+
+    try {
+      const acceptanceEvents = await this.ndk.fetchEvents(acceptanceFilter);
+
+      acceptanceEvents.forEach(event => {
+        const authorHex = event.pubkey;
+
+        // Check for acceptance tag ('a')
+        const acceptTag = event.tags.find(tag => tag[0] === 'a' && tag[1]);
+        if (acceptTag && awardEventIds.has(acceptTag[1])) {
+          // Check if it references a relevant award
+          const awardId = acceptTag[1];
+          const statusKey = `${awardId}:${authorHex}`;
+          // Add or update status (latest event wins if multiple exist)
+          statusMap.set(statusKey, 'accepted');
+        }
+
+        // Check for blocking tag ('b')
+        const blockTag = event.tags.find(tag => tag[0] === 'b' && tag[1]);
+        if (blockTag && awardEventIds.has(blockTag[1])) {
+          // Check if it references a relevant award
+          const awardId = blockTag[1];
+          const statusKey = `${awardId}:${authorHex}`;
+          // Add or update status
+          statusMap.set(statusKey, 'blocked');
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching badge acceptance statuses:', error);
+      // Proceed without status info or re-throw depending on desired behavior
+    }
+
+    return statusMap;
+  }
+
+  /**
+   * Helper to ensure a pubkey is in hex format.
+   * @param pubkey - npub or hex pubkey
+   * @returns Hex pubkey
+   * @throws Error if npub is invalid
+   */
+  private ensureHexPubkey(pubkey: string): string {
+    if (pubkey.startsWith('npub')) {
+      try {
+        const { data } = nip19.decode(pubkey);
+        if (typeof data !== 'string') {
+          throw new Error(`Decoded data is not a string for npub: ${pubkey}`);
+        }
+        return data;
+      } catch (e) {
+        throw new Error(`Invalid npub: ${pubkey} ${e}`);
+      }
+    }
+    // Add basic hex validation if desired, e.g., check length and characters
+    // if (!/^[0-9a-fA-F]{64}$/.test(pubkey)) {
+    //     throw new Error(`Invalid hex pubkey format: ${pubkey}`);
+    // }
+    return pubkey;
   }
 
   /**
@@ -649,7 +749,7 @@ export default class BadgesService {
             return tag[0] === 'a' ? tag[1] : false;
           })
           .map(tagArr => tagArr[1]);
-        if (respondedAwardIds.has(eventATags[0])) continue;
+        if (respondedAwardIds.has(event.id)) continue;
 
         // Get badge definition from the 'a' tag
         const badgeDefTag = event.tags.find(tag => tag[0] === 'a');
