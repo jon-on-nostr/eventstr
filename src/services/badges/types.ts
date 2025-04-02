@@ -4,7 +4,8 @@ export interface BadgeDefinition {
   name: string; // Badge name
   description: string; // Badge description
   image: string; // Badge image URL
-  thumbnail?: string; // Optional thumbnail URL
   createdAt: number; // Creation timestamp
   creator: string; // Creator's npub
+  thumbnail?: string; // Optional thumbnail URL
+  awardId?: string;
 }

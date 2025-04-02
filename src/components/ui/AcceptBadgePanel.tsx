@@ -43,7 +43,13 @@ interface AcceptBadgeSectionProps {
 const AcceptBadgeSection: React.FC<AcceptBadgeSectionProps> = ({ ndk }) => {
   const badgesService = useMemo(() => new BadgesService(ndk), [ndk]);
 
-  const { pendingBadges, isLoading } = usePendingBadges(badgesService);
+  const {
+    pendingBadges,
+    isLoading,
+    acceptBadge,
+    blockBadge,
+    fetchPendingBadges: refreshPendingBadges,
+  } = usePendingBadges(badgesService);
   // State for badge detail modal
   const [detailModal, setDetailModal] = useState<{
     open: boolean;
@@ -137,8 +143,12 @@ const AcceptBadgeSection: React.FC<AcceptBadgeSectionProps> = ({ ndk }) => {
     }));
 
     try {
-      // Call the BadgesService to accept or reject the badge
-      await badgesService.respondToBadgeAward(badge.id, action === 'accept' ? 'accept' : 'block');
+      // Use the hook functions instead of calling service directly
+      if (action === 'accept') {
+        await acceptBadge(badge.awardId);
+      } else {
+        await blockBadge(badge.awardId);
+      }
 
       // Show success feedback
       setActionFeedback({
@@ -147,6 +157,9 @@ const AcceptBadgeSection: React.FC<AcceptBadgeSectionProps> = ({ ndk }) => {
         success: true,
         badgeId: badge.id,
       });
+
+      // Refresh the pending badges
+      refreshPendingBadges();
     } catch (error) {
       console.error(`Error ${action}ing badge:`, error);
 

@@ -42,8 +42,8 @@ export const usePendingBadges = (badgesService: BadgesService | null, refreshTri
 
   // Function to accept a badge
   const acceptBadge = useCallback(
-    async (awardId: string) => {
-      if (!badgesService) return;
+    async (awardId: string | undefined) => {
+      if (!badgesService || !awardId) return;
 
       try {
         await badgesService.respondToBadgeAward(awardId, 'accept');
@@ -61,8 +61,8 @@ export const usePendingBadges = (badgesService: BadgesService | null, refreshTri
 
   // Function to block a badge
   const blockBadge = useCallback(
-    async (awardId: string) => {
-      if (!badgesService) return;
+    async (awardId: string | undefined) => {
+      if (!badgesService || !awardId) return;
 
       try {
         await badgesService.respondToBadgeAward(awardId, 'block');
